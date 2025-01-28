@@ -1,0 +1,21 @@
+{
+  "name": "puter-sdk",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run tests/*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.9"
+  },
+  "devDependencies": {
+    "axios-mock-adapter": "^2.1.0",
+    "jsdom": "^26.0.0",
+    "vitest": "^3.0.4"
+  }
+}
