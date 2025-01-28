@@ -7,10 +7,12 @@ import { PuterError } from './errors';
 import { API_BASE_URL } from './constants';
 
 export default class PuterClient {
-
+  
   constructor(config = {}) {
     this.baseURL = config.baseURL || API_BASE_URL;
     this.token = config.token || null;
+    
+    // Initialize HTTP client
     this.http = axios.create({
       baseURL: this.baseURL,
       headers: {
@@ -36,7 +38,6 @@ export default class PuterClient {
       }
     );
   }
-
 
   /**
    * Upload a file to the given destination
