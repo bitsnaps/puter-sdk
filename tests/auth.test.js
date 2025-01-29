@@ -44,9 +44,9 @@ describe('Authentication', () => {
         message: 'Internal server error'
       }
     });
-
+  
     await expect(client.auth.login('user', 'pass'))
-      .rejects.toThrow('Internal server error');
+      .rejects.toThrow(/Internal server error/);
   });
 
   it('should get current user when authenticated', async () => {
