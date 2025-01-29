@@ -118,12 +118,12 @@ describe('Authentication', () => {
       proceed: false,
       error: {
         code: 'INVALID_OTP',
-        message: 'Authentication failed: Invalid credentials'
+        message: 'Invalid OTP code'
       }
     });
 
     await expect(client.auth.login('user', 'pass', 'wrong-otp'))
-      .rejects.toThrow('Authentication failed: Invalid credentials');
+      .rejects.toThrow('Invalid OTP code');
   });
 
   it('should handle unknown next_step', async () => {
@@ -133,7 +133,7 @@ describe('Authentication', () => {
     });
 
     await expect(client.auth.login('user', 'pass'))
-      .rejects.toThrow('Authentication failed: Invalid credentials');
+      .rejects.toThrow('Unsupported authentication step: unknown_step');
   });
-
+  
 });

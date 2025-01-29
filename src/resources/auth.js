@@ -17,14 +17,14 @@ export class PuterAuth {
     if (!username || !password) {
       throw new Error('Username and password are required');
     }
-
+  
     try {
       let response = await this.client.http.post('/login', {
         username,
         password
       });
-
-      // Handle 2FA if requested
+  
+      // Handle 2FA if required
       if (response.proceed && response.next_step === 'otp') {
         if (!otp) {
           throw new Error('2FA required - OTP is needed');
@@ -35,15 +35,24 @@ export class PuterAuth {
           code: otp
         });
       }
-
+  
+      // Handle unknown next_step
+      if (response.proceed && response.next_step && response.next_step !== 'complete') {
+        throw new Error(`Unsupported authentication step: ${response.next_step}`);
+      }
+  
       if (!response.proceed || !response.token) {
+        // Check for specific OTP failure
+        if (response.error?.code === 'INVALID_OTP') {
+          throw new Error(response.error.message || 'Invalid OTP code');
+        }
         throw new Error('Authentication failed: Invalid credentials');
       }
-
+  
       // Update client with new token
       this.client.token = response.token;
       this.client.http.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
-
+  
       return response;
     } catch (error) {
       if (error.response?.data?.error) {
