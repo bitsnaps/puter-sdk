@@ -40,6 +40,23 @@ export default class PuterClient {
   }
 
   /**
+   * Check if 2FA is required for the user
+   * @param {string} username
+   * @returns {Promise<boolean>}
+   */
+  async isTwoFactorRequired(username) {
+    try {
+      const response = await this.http.post('/login', {
+        username,
+        password: 'dummy' // Server should respond with 2FA requirement without validating password
+      });
+      return response.next_step === 'otp';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * Upload a file to the given destination
    * @param {object} params to indicate where to upload files
    */

@@ -16,3 +16,13 @@ export class AuthenticationError extends PuterError {
     this.name = 'AuthenticationError';
   }
 }
+
+export class TwoFactorRequiredError extends PuterError {
+  constructor() {
+    super({
+      code: '2FA_REQUIRED',
+      message: 'Two-factor authentication required'
+    });
+    this.name = 'TwoFactorRequiredError';
+  }
+}

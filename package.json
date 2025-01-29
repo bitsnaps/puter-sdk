@@ -2,13 +2,20 @@
   "name": "puter-sdk",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
+  "description": "The Unofficial Puter SDK library for Puter cloud platform",
   "main": "index.js",
   "scripts": {
     "test": "vitest run tests/auth*"
   },
-  "keywords": [],
-  "author": "",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "puter",
+    "sdk",
+    "cloud"
+  ],
+  "author": "Ibrahim.H",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.7.9"
@@ -18,5 +25,13 @@
     "axios-mock-adapter": "^2.1.0",
     "jsdom": "^26.0.0",
     "vitest": "^3.0.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitsnaps/puter-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bitsnaps/puter-sdk/issues"
+  },
+  "homepage": "https://github.com/bitsnaps/puter-sdk"
 }

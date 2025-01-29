@@ -71,4 +71,69 @@ describe('Authentication', () => {
     await expect(client.auth.getCurrentUser())
       .rejects.toThrow('Not authenticated');
   });
+
+  it('should handle 2FA authentication', async () => {
+    // First login response
+    mockAxios.onPost('/login').reply(200, {
+      proceed: true,
+      next_step: 'otp',
+      otp_jwt_token: 'temp-token'
+    });
+
+    // OTP verification response
+    mockAxios.onPost('/login/otp').reply(200, {
+      proceed: true,
+      token: 'final-token'
+    });
+
+    const result = await client.auth.login('user', 'pass', '123456');
+    expect(result).toEqual({
+      proceed: true,
+      token: 'final-token'
+    });
+    expect(client.token).toBe('final-token');
+  });
+
+  it('should throw error when 2FA is required but no OTP provided', async () => {
+    mockAxios.onPost('/login').reply(200, {
+      proceed: true,
+      next_step: 'otp',
+      otp_jwt_token: 'temp-token'
+    });
+
+    await expect(client.auth.login('user', 'pass'))
+      .rejects.toThrow('2FA required - OTP is needed');
+  });
+
+  it('should handle 2FA authentication failure', async () => {
+    // First login response
+    mockAxios.onPost('/login').reply(200, {
+      proceed: true,
+      next_step: 'otp',
+      otp_jwt_token: 'temp-token'
+    });
+
+    // OTP verification failure
+    mockAxios.onPost('/login/otp').reply(200, {
+      proceed: false,
+      error: {
+        code: 'INVALID_OTP',
+        message: 'Authentication failed: Invalid credentials'
+      }
+    });
+
+    await expect(client.auth.login('user', 'pass', 'wrong-otp'))
+      .rejects.toThrow('Authentication failed: Invalid credentials');
+  });
+
+  it('should handle unknown next_step', async () => {
+    mockAxios.onPost('/login').reply(200, {
+      proceed: true,
+      next_step: 'unknown_step'
+    });
+
+    await expect(client.auth.login('user', 'pass'))
+      .rejects.toThrow('Authentication failed: Invalid credentials');
+  });
+
 });
