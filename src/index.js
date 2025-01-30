@@ -5,14 +5,14 @@ import { PuterApps } from './resources/apps';
 import { PuterSubdomains } from './resources/subdomains';
 import { PuterError } from './errors';
 import { API_BASE_URL } from './constants';
+import config from './config';
 
 export default class PuterClient {
   
-  constructor(config = {}) {
-    this.baseURL = config.baseURL || API_BASE_URL;
-    this.token = config.token || null;
+  constructor(clientConfig = {}) {
+    this.baseURL = clientConfig.baseURL || config.apiBaseUrl;
+    this.token = clientConfig.token || config.apiKey;
     
-    // Initialize HTTP client
     this.http = axios.create({
       baseURL: this.baseURL,
       headers: {
@@ -20,6 +20,7 @@ export default class PuterClient {
         ...(this.token && { Authorization: `Bearer ${this.token}` })
       }
     });
+
 
     // Initialize resources
     this.auth = new PuterAuth(this);
