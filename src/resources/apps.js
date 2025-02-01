@@ -77,6 +77,91 @@ export class PuterApps {
     }
   }
 
+  async createAppRecord(options) {
+    const { name, url, description = '' } = options;
+    
+    const response = await this.client.http.post('/drivers/call', {
+      interface: 'puter-apps',
+      method: 'create',
+      args: {
+        object: {
+          name,
+          index_url: url,
+          title: name,
+          description,
+          maximize_on_start: false,
+          background: false,
+          metadata: {
+            window_resizable: true
+          }
+        },
+        options: {
+          dedupe_name: true
+        }
+      }
+    });
+  
+    if (response.error) {
+      throw new PuterError(response.error);
+    }
+  
+    if (!response.success || !response.result) {
+      throw new Error(response.error?.message || 'Failed to create app record');
+    }
+  
+    return response.result;
+  }
+
+  async createAppDirectory(app) {
+    if (!app?.owner?.username || !app?.uid) {
+      console.log(app);
+      throw new Error('Invalid app record');
+    }
+
+    const appDir = `/${app.owner.username}/AppData/${app.uid}`;
+    const response = await this.client.http.post('/mkdir', {
+      parent: appDir,
+      path: `app-${crypto.randomUUID()}`,
+      overwrite: true,
+      dedupe_name: false,
+      create_missing_parents: true
+    });
+
+    if (!response.uid) {
+      throw new Error('Failed to create app directory');
+    }
+
+    return response;
+  }
+
+  async createAppSubdomain(app, dirResponse) {
+    const subdomainName = `${app.name}-${dirResponse.uid.split('-')[0]}`;
+    return this.client.subdomains.create({
+      subdomain: subdomainName,
+      rootDir: dirResponse.path
+    });
+  }
+
+  async updateAppWithSubdomain(app, subdomainName) {
+    const response = await this.client.http.post('/drivers/call', {
+      interface: 'puter-apps',
+      method: 'update',
+      args: {
+        id: { name: app.name },
+        object: {
+          index_url: `https://${subdomainName}.puter.site`,
+          title: app.name
+        }
+      }
+    });
+
+    if (!response.success) {
+      throw new Error('Failed to update app with subdomain URL');
+    }
+
+    return response;
+  }
+
   /**
    * Create a new app
    * @param {object} options
@@ -87,87 +172,24 @@ export class PuterApps {
    * @returns {Promise<object>} Created app details
    */
   async create(options) {
-    const { name, url = '', description = '', directory = '' } = options;
+    const { name, url = '', description = '' } = options;
   
     if (!name) {
       throw new Error('App name is required');
     }
   
     try {
-      // Step 1: Create the app
-      const createResponse = await this.client.http.post('/drivers/call', {
-        interface: 'puter-apps',
-        method: 'create',
-        args: {
-          object: {
-            name,
-            index_url: url,
-            title: name,
-            description,
-            maximize_on_start: false,
-            background: false,
-            metadata: {
-              window_resizable: true
-            }
-          },
-          options: {
-            dedupe_name: true
-          }
-        }
-      });
-  
-      // Handle API response errors
-      if (createResponse.error) {
-        throw new PuterError(createResponse.error);
-      }
-  
-      // Handle specific creation errors
-      if (!createResponse.success) {
-        const errorMessage = createResponse.error?.message || 
-                           createResponse.result?.error?.message || 
-                           'Failed to create app';
-        throw new Error(errorMessage);
-      }
+      // Step 1: Create app record
+      const app = await this.createAppRecord({ name, url, description });
   
       // Step 2: Create app directory
-      const app = createResponse.result;
-      const appDir = `/${app.owner.username}/AppData/${app.uid}`;
-      
-      const dirResponse = await this.client.http.post('/mkdir', {
-        parent: appDir,
-        path: `app-${crypto.randomUUID()}`,
-        overwrite: true,
-        dedupe_name: false,
-        create_missing_parents: true
-      });
-  
-      if (!dirResponse.uid) {
-        throw new Error('Failed to create app directory');
-      }
+      const dirResponse = await this.createAppDirectory(app);
   
       // Step 3: Create subdomain
-      const subdomainName = `${name}-${dirResponse.uid.split('-')[0]}`;
-      const subdomainResponse = await this.client.subdomains.create({
-        subdomain: subdomainName,
-        rootDir: dirResponse.path
-      });
+      const subdomainResponse = await this.createAppSubdomain(app, dirResponse);
   
       // Step 4: Update app with subdomain URL
-      const updateResponse = await this.client.http.post('/drivers/call', {
-        interface: 'puter-apps',
-        method: 'update',
-        args: {
-          id: { name: app.name },
-          object: {
-            index_url: `https://${subdomainName}.puter.site`,
-            title: name
-          }
-        }
-      });
-  
-      if (!updateResponse.success) {
-        throw new Error('Failed to update app with subdomain URL');
-      }
+      await this.updateAppWithSubdomain(app, subdomainResponse?.subdomain);
   
       return {
         ...app,
@@ -181,10 +203,11 @@ export class PuterApps {
         throw new Error('App already exists');
       }
       
-      if (error instanceof PuterError) throw error;
-      if (error.response?.data?.error) {
-        throw new PuterError(error.response.data.error);
+      if (error instanceof PuterError) {
+        throw error;
       }
+  
+      // Handle network errors or other exceptions
       throw new Error(error.message || 'Failed to create app');
     }
   }

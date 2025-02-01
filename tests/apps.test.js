@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import PuterClient from '../src/index';
 import { mockAxios } from './mocks/axios';
+import { API_BASE_URL } from '../src/constants';
 
 describe('App Management', () => {
   let client;
@@ -10,7 +11,9 @@ describe('App Management', () => {
     if (process.env.USE_REAL_API) {
         client = new PuterClient();
       } else {
-        client = new PuterClient();
+        client = new PuterClient({
+          baseURL: API_BASE_URL
+        });
         mockAxios.reset();
       }
   });
@@ -161,32 +164,142 @@ describe('App Management', () => {
   });
 
   describe('createApp', () => {
-    it.skip('should create a new app', async () => {
-      const mockResponse = {
-        id: 'app-123',
-        name: 'test-app',
-        url: 'https://test.app'
-      };
 
+    // beforeEach(() => {
+    //   mockAxios.reset();
+    // });
+
+    const mockAppRecord = {
+      uid: 'app-123',
+      name: 'test-app',
+      owner: { username: 'testuser' },
+      index_url: 'https://test.app'
+    };
+
+    const mockDirResponse = {
+      uid: 'dir-123',
+      path: '/testuser/AppData/app-123/app-dir'
+    };
+
+    const mockSubdomainResponse = {
+      uid: 'app-123',
+      subdomain: 'test-app-123'
+    };
+
+    it('should create app record', async () => {
       mockAxios.onPost('/drivers/call').reply(200, {
         success: true,
-        result: mockResponse
+        result: mockAppRecord
       });
+  
+      const result = await client.apps.createAppRecord({
+        name: 'test-app',
+        url: 'https://test.app'
+      });
+  
+      expect(result).toEqual(mockAppRecord);
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-apps',
+        method: 'create',
+        args: {
+          object: {
+            name: 'test-app',
+            index_url: 'https://test.app',
+            title: 'test-app',
+            description: '',
+            maximize_on_start: false,
+            background: false,
+            metadata: {
+              window_resizable: true
+            }
+          },
+          options: {
+            dedupe_name: true
+          }
+        }
+      }));
+    });
 
+    it('should create app directory', async () => {
+      mockAxios.onPost('/mkdir').reply(200, mockDirResponse);  
+      const result = await client.apps.createAppDirectory(mockAppRecord);
+
+      expect(result).toEqual(mockDirResponse);
+      const parsedOutput = JSON.parse(mockAxios.history.post[0].data);
+      expect(parsedOutput['parent']).toEqual(`/${mockAppRecord.owner.username}/AppData/${mockAppRecord.uid}`);
+      expect(parsedOutput['path']).toString(/^app-[0-9a-f-]+$/);
+      expect(parsedOutput['overwrite']).toEqual(true);
+      expect(parsedOutput['dedupe_name']).toEqual(false);
+      expect(parsedOutput['create_missing_parents']).toEqual(true);     
+    });
+
+    it('should update app with subdomain', async () => {
+      mockAxios.onPost('/drivers/call').reply(200, {
+        success: true
+      });
+  
+      await client.apps.updateAppWithSubdomain(
+        mockAppRecord,
+        mockSubdomainResponse.subdomain
+      );
+  
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-apps',
+        method: 'update',
+        args: {
+          id: { name: mockAppRecord.name },
+          object: {
+            index_url: `https://${mockSubdomainResponse.subdomain}.puter.site`,
+            title: mockAppRecord.name
+          }
+        }
+      }));
+    });
+
+    it('should create a new app', async () => {
+      // Create the app record
+      mockAxios.onPost('/drivers/call').reply(200, {
+        success: true,
+        result: mockAppRecord
+      })
+      // Create the app directory
+      .onPost('/mkdir').reply(200, mockDirResponse)
+      // Create the sbudomain
+      .onPost('/drivers/call').reply(200, {
+        success: true,
+        result: {...mockSubdomainResponse, owner: mockAppRecord.owner}
+      })
+      // Assign a subdomain to the app
+      .onPost('/drivers/call', {
+        interface: 'puter-apps',
+        method: 'update'
+      })
+      .reply(200, {
+        success: true
+      });
+      
       const result = await client.apps.create({
         name: 'test-app',
         url: 'https://test.app'
       });
 
-      expect(result).toEqual(mockResponse);
-      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
-        interface: "puter-apps",
-        method: "create",
-        args: {
-          name: 'test-app',
-          url: 'https://test.app'
-        }
-      }));
+      expect(result).toEqual({
+        "directory": {
+          "path": "/testuser/AppData/app-123/app-dir",
+          "uid": "dir-123",
+        },
+        "owner": mockAppRecord.owner,
+        "subdomain": undefined,
+        "uid": mockAppRecord.uid
+      });
+      // expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+      //   interface: "puter-apps",
+      //   method: "create",
+      //   args: {
+      //     name: 'test-app',
+      //     url: 'https://test.app'
+      //   }
+      // }));
     });
 
     it('should handle creation errors', async () => {

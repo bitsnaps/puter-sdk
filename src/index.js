@@ -4,7 +4,6 @@ import { PuterFileSystem } from './resources/filesystem';
 import { PuterApps } from './resources/apps';
 import { PuterSubdomains } from './resources/subdomains';
 import { PuterError } from './errors';
-import { API_BASE_URL } from './constants';
 import config from './config';
 
 export default class PuterClient {
