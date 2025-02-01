@@ -164,11 +164,7 @@ describe('App Management', () => {
   });
 
   describe('createApp', () => {
-
-    // beforeEach(() => {
-    //   mockAxios.reset();
-    // });
-
+    
     const mockAppRecord = {
       uid: 'app-123',
       name: 'test-app',
@@ -292,14 +288,26 @@ describe('App Management', () => {
         "subdomain": undefined,
         "uid": mockAppRecord.uid
       });
-      // expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
-      //   interface: "puter-apps",
-      //   method: "create",
-      //   args: {
-      //     name: 'test-app',
-      //     url: 'https://test.app'
-      //   }
-      // }));
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: "puter-apps",
+        method: "create",
+        args: {
+          object: {
+            name: 'test-app',
+            index_url: 'https://test.app',
+            title: "test-app",
+            description: "",
+            maximize_on_start: false,
+            background: false,
+            metadata: {
+              window_resizable: true,
+            },
+          },
+          options: {
+            dedupe_name: true
+          }
+        }
+      }));
     });
 
     it('should handle creation errors', async () => {
