@@ -26,8 +26,9 @@ describe('File Operations', () => {
     };
     
     mockAxios.onGet('/whoami').reply(200, mockUserInfo);
-    const contents = await client.whoami();
-    expect(contents).toEqual(mockUserInfo);
+
+    const response = await client.auth.getCurrentUser();
+    expect(response).toEqual(mockUserInfo);
     expect(mockAxios.history.get.length).toEqual(1);
   });
 

@@ -68,7 +68,7 @@ export class PuterAuth {
    */
   async getCurrentUser() {
     if (!this.client.token) {
-      throw new Error('Not authenticated');
+      throw new PuterError('Not authenticated');
     }
 
     try {

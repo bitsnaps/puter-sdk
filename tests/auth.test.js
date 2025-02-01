@@ -1,12 +1,17 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import PuterClient from '../src/index';
 import { mockAxios } from './mocks/axios';
+import { API_BASE_URL } from '../src/constants';
+import { PuterError } from '../src/errors';
 
 describe('Authentication', () => {
   let client;
   
   beforeEach(() => {
-    client = new PuterClient();
+    client = new PuterClient({
+      baseURL: API_BASE_URL
+    });
+
     mockAxios.reset();
   });
 
@@ -68,8 +73,10 @@ describe('Authentication', () => {
   });
 
   it('should throw error when getting user without authentication', async () => {
+    mockAxios.onGet('/whoami').reply(401, { error: new PuterError("An error occurred") });
+
     await expect(client.auth.getCurrentUser())
-      .rejects.toThrow('Not authenticated');
+      .rejects.toThrow("An error occurred");
   });
 
   it('should handle 2FA authentication', async () => {

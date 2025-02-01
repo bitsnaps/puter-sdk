@@ -5,7 +5,7 @@
   "description": "The Unofficial Puter SDK library for Puter cloud platform",
   "main": "index.js",
   "scripts": {
-    "test": "vitest run tests/app*",
+    "test": "vitest run tests/*",
     "coverage": "vitest run --coverage"
   },
   "engines": {
