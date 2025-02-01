@@ -27,8 +27,8 @@ jobs:
         rm -rf .pnpm
     - name: Install dependencies
       run: pnpm install
-    - name: Run tests
-      run: pnpm test
+    - name: Run tests & coverage
+      run: pnpm run coverage
     - name: Upload coverage
       uses: codecov/codecov-action@v5
       with:
