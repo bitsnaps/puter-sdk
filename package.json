@@ -5,7 +5,7 @@
   "description": "The Unofficial Puter SDK library for Puter cloud platform",
   "main": "index.js",
   "scripts": {
-    "test": "vitest run tests/apps*",
+    "test": "vitest run tests/app*",
     "coverage": "vitest run --coverage"
   },
   "engines": {
@@ -20,7 +20,8 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^1.7.9",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "3.0.4",
