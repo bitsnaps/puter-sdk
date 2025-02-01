@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { PuterUsage } from './resources/usage';
 import { PuterAuth } from './resources/auth';
 import { PuterFileSystem } from './resources/filesystem';
 import { PuterApps } from './resources/apps';
@@ -26,6 +27,7 @@ export default class PuterClient {
     this.filesystem = new PuterFileSystem(this);
     this.apps = new PuterApps(this);
     this.subdomains = new PuterSubdomains(this);
+    this.usage = new PuterUsage(this);
 
     // Add response interceptor
     this.http.interceptors.response.use(
