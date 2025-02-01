@@ -39,6 +39,18 @@ export default class PuterClient {
     );
   }
 
+  async whoami() {
+    try {
+      const response = await this.http.get('/whoami');
+      if (!response){
+        throw new Error('Cannot get user information.');
+      }
+      return response;
+    } catch (error) {
+      throw new Error(error.message || 'Error getting user information.');
+    }
+  }
+
   /**
    * Check if 2FA is required for the user
    * @param {string} username

@@ -1,4 +1,5 @@
 import { PuterError } from '../errors';
+import crypto from '../crypto';
 
 export class PuterApps {
   constructor(client) {
