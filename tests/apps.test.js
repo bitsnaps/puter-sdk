@@ -282,12 +282,17 @@ describe('App Management', () => {
       expect(result).toEqual({
         "directory": {
           "path": "/testuser/AppData/app-123/app-dir",
-          "uid": "dir-123",
+          "uid": mockDirResponse.uid,
         },
         "owner": mockAppRecord.owner,
-        "subdomain": undefined,
+        "subdomain": {
+          "owner": mockAppRecord.owner,
+          "subdomain": mockSubdomainResponse.subdomain,
+          "uid": mockAppRecord.uid
+        },
         "uid": mockAppRecord.uid
       });
+      expect(mockAxios.history.post.length).toEqual(4);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
         interface: "puter-apps",
         method: "create",

@@ -28,6 +28,7 @@ export default class PuterClient {
     this.apps = new PuterApps(this);
     this.subdomains = new PuterSubdomains(this);
     this.usage = new PuterUsage(this);
+    this.subdomains = new PuterSubdomains(this);
 
     // Add response interceptor
     this.http.interceptors.response.use(
