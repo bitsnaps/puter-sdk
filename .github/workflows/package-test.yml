@@ -19,7 +19,12 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
+        # cache: 'pnpm'
+    - name: Clean pnpm store
+      run: |
+        pnpm store prune
+        rm -rf node_modules
+        rm -rf .pnpm
     - name: Install dependencies
       run: pnpm install
     - name: Run tests
