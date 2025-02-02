@@ -3,6 +3,7 @@ import { PuterUsage } from './resources/usage';
 import { PuterAuth } from './resources/auth';
 import { PuterFileSystem } from './resources/filesystem';
 import { PuterApps } from './resources/apps';
+import { PuterSites } from './resources/sites';
 import { PuterSubdomains } from './resources/subdomains';
 import { PuterError } from './errors';
 import config from './config';
@@ -26,6 +27,7 @@ export default class PuterClient {
     this.auth = new PuterAuth(this);
     this.filesystem = new PuterFileSystem(this);
     this.apps = new PuterApps(this);
+    this.sites = new PuterSites(this);
     this.subdomains = new PuterSubdomains(this);
     this.usage = new PuterUsage(this);
     this.subdomains = new PuterSubdomains(this);
