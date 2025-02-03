@@ -73,4 +73,131 @@ export class PuterAI {
       throw new Error(error.message || 'Failed to get streaming chat completion');
     }
   }
+
+  /**
+   * Perform OCR on an image
+   * @param {string} fileId - ID of the file to process
+   * @returns {Promise<object>} OCR result
+   */
+  async ocrRecognize(fileId) {
+    if (!fileId) {
+      throw new Error('File ID is required');
+    }
+
+    try {
+      const response = await this.client.http.post('/drivers/call', {
+        interface: 'puter-ocr',
+        method: 'recognize',
+        args: {
+          source: fileId
+        }
+      });
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'OCR processing failed');
+      }
+
+      return response.result;
+    } catch (error) {
+      if (error.response?.data?.error) {
+        throw new PuterError(error.response.data.error);
+      }
+      throw new Error(error.message || 'OCR processing failed');
+    }
+  }
+
+  /**
+   * Generate an image from a prompt
+   * @param {object} options
+   * @param {string} options.prompt - Text prompt for image generation
+   * @returns {Promise<object>} Generated image details
+   */
+  async generateImage(options) {
+    const { prompt } = options;
+
+    if (!prompt) {
+      throw new Error('Prompt is required');
+    }
+
+    try {
+      const response = await this.client.http.post('/drivers/call', {
+        interface: 'puter-image-generation',
+        method: 'generate',
+        args: {
+          prompt
+        }
+      });
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Image generation failed');
+      }
+
+      return response.result;
+    } catch (error) {
+      if (error.response?.data?.error) {
+        throw new PuterError(error.response.data.error);
+      }
+      throw new Error(error.message || 'Image generation failed');
+    }
+  }
+
+  /**
+   * List available TTS voices
+   * @returns {Promise<Array>} List of available voices
+   */
+  async listVoices() {
+    try {
+      const response = await this.client.http.post('/drivers/call', {
+        interface: 'puter-tts',
+        method: 'list_voices'
+      });
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Failed to list voices');
+      }
+
+      return response.result;
+    } catch (error) {
+      if (error.response?.data?.error) {
+        throw new PuterError(error.response.data.error);
+      }
+      throw new Error(error.message || 'Failed to list voices');
+    }
+  }
+
+  /**
+   * Synthesize speech from text
+   * @param {object} options
+   * @param {string} options.text - Text to synthesize
+   * @param {string} options.voice - Voice ID to use
+   * @returns {Promise<Stream>} Audio stream
+   */
+  async synthesizeSpeech(options) {
+    const { text, voice } = options;
+
+    if (!text || !voice) {
+      throw new Error('Text and voice are required');
+    }
+
+    try {
+      const response = await this.client.http.post('/drivers/call', {
+        interface: 'puter-tts',
+        method: 'synthesize',
+        args: {
+          text,
+          voice
+        }
+      }, {
+        responseType: 'stream'
+      });
+
+      return response.data;
+    } catch (error) {
+      if (error.response?.data?.error) {
+        throw new PuterError(error.response.data.error);
+      }
+      throw new Error(error.message || 'Speech synthesis failed');
+    }
+  }
+  
 }
