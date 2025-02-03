@@ -73,10 +73,11 @@ describe('Authentication', () => {
   });
 
   it('should throw error when getting user without authentication', async () => {
-    mockAxios.onGet('/whoami').reply(401, { error: new PuterError("An error occurred") });
+    const errorMessage = 'Failed to get user information';
+    mockAxios.onGet('/whoami').reply(401, { error: new PuterError(errorMessage) });
 
     await expect(client.auth.getCurrentUser())
-      .rejects.toThrow("An error occurred");
+      .rejects.toThrow(errorMessage);
   });
 
   it('should handle 2FA authentication', async () => {

@@ -63,21 +63,36 @@ export class PuterAuth {
   }
 
   /**
-   * Get current authenticated user information
-   * @returns {Promise<object>} User information
+   * Logout the current user
+   * @returns {Promise<void>}
    */
-  async getCurrentUser() {
-    if (!this.client.token) {
-      throw new PuterError('Not authenticated');
-    }
-
+  async logout() {
     try {
-      return await this.client.http.get('/whoami');
+      await this.client.http.post('/logout');
+      this.client.token = null;
+      delete this.client.http.defaults.headers.common['Authorization'];
     } catch (error) {
       if (error.response?.data?.error) {
         throw new PuterError(error.response.data.error);
       }
-      throw error;
+      throw new Error('Failed to logout');
     }
   }
+    
+  /**
+   * Get current authenticated user information
+   * @returns {Promise<object>} User information
+   */
+  async getCurrentUser() {
+    try {
+      const response = await this.client.http.get('/whoami');
+      return response;
+    } catch (error) {
+      if (error.response?.data?.error) {
+        throw new PuterError(error.response.data.error);
+      }
+      throw new Error('Failed to get user information');
+    }
+  }
+
 }
