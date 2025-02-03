@@ -97,7 +97,7 @@ describe('Site Management', () => {
   });
 
   describe('Create Site', () => {
-    it.skip('should create a new site', async () => {
+    it('should create a new site', async () => {
       const mockSite = {
         uid: 'site-123',
         subdomain: 'mysite',
@@ -106,14 +106,16 @@ describe('Site Management', () => {
         }
       };
 
-      mockAxios.onPost('/drivers/call')
-        .replyOnce(200, { // Check subdomain availability
-          result: []
-        })
-        .replyOnce(200, { // Create subdomain
-          success: true,
-          result: mockSite
-        });
+      mockAxios
+        .onPost('/drivers/call')
+          .replyOnce(200, { // Check subdomain availability
+            result: []
+          })
+        .onPost('/drivers/call')
+          .replyOnce(200, { // Create subdomain
+            success: true,
+            result: mockSite
+          });
 
       const result = await client.sites.create({
         name: 'mysite',
@@ -121,6 +123,7 @@ describe('Site Management', () => {
       });
 
       expect(result).toEqual(mockSite);
+      expect(mockAxios.history.post.length).toEqual(2);
     });
 
     it('should handle existing subdomain', async () => {
@@ -139,16 +142,22 @@ describe('Site Management', () => {
   });
 
   describe('Delete Site', () => {
-    it.skip('should delete a site', async () => {
-      mockAxios.onPost('/delete-site').reply(200, {
-        success: true
-      });
+    it('should delete a site', async () => {
+      const mockSite = { uid: 'site-123' };
+      const mockResponse = { success: true };
 
-      const result = await client.sites.delete('site-123');
+      mockAxios
+        .onPost('/delete-site')
+          .replyOnce(200, mockResponse)
+        .onPost('/drivers/call')
+          .replyOnce(200, mockResponse);
+
+      const result = await client.sites.delete(mockSite.uid);
       expect(result).toBe(true);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
-        site_uuid: 'site-123'
+        site_uuid: mockSite.uid
       }));
+      expect(mockAxios.history.post.length).toEqual(2);
     });
 
     it('should handle deletion errors', async () => {

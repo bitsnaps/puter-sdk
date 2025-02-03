@@ -102,14 +102,17 @@ export class PuterSites {
       });
 
       // Then delete the subdomain
-      await this.client.subdomains.delete(siteId);
+      const response = await this.client.subdomains.delete(siteId);
+      if (!response.ok){
+        console.error(`Failed to delete a subdomain for site: ${siteId}`);
+      }
 
       return true;
     } catch (error) {
       if (error.response?.data?.error) {
         throw new PuterError(error.response.data.error);
       }
-      throw new Error('Failed to delete site');
+      throw new Error(`Failed to delete site: ${error.message}`);
     }
   }
 }
