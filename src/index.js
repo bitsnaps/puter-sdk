@@ -5,6 +5,7 @@ import { PuterFileSystem } from './resources/filesystem';
 import { PuterApps } from './resources/apps';
 import { PuterSites } from './resources/sites';
 import { PuterSubdomains } from './resources/subdomains';
+import { PuterAI } from './resources/ai';
 import { PuterError } from './errors';
 import config from './config';
 
@@ -31,6 +32,7 @@ export default class PuterClient {
     this.subdomains = new PuterSubdomains(this);
     this.usage = new PuterUsage(this);
     this.subdomains = new PuterSubdomains(this);
+    this.ai = new PuterAI(this);
 
     // Add response interceptor
     this.http.interceptors.response.use(
