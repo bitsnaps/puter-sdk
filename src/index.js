@@ -107,19 +107,4 @@ export default class PuterClient {
     }
   }
 
-  /**
-   * Upload a file to the given destination
-   * @param {object} params to indicate where to upload files
-   */
-  uploadFile(params = {}) {
-    
-  }
-
-  /**
-   * List directories in given path
-   * @param {string} path directory
-   */
-  listDirectory(path /*: string */) {
-    
-  }
 }
