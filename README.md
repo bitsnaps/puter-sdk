@@ -24,6 +24,12 @@ The official JavaScript SDK for interacting with the **Puter Cloud Platform**. I
   - Manage app configurations (WIP)
   - Deploy static sites
 
+- **Key-Value Store**
+    - Basic Operations: Set, get, and delete key/value pairs
+    - Handle various data types (strings, numbers, objects, arrays)
+    - Increment/Decrement: Atomic increment/decrement operations with support for custom amounts
+    - upport for custom amounts: Flush all keys, list keys with glob pattern support
+
 - **Sites Management**
   - Create, update, and delete sites
   - Deploy static sites from existing directory
@@ -126,6 +132,21 @@ console.log('Created app:', app);
 // List all apps
 const apps = await client.apps.list();
 console.log('Apps:', apps);
+```
+
+
+### Key/Value Store
+
+```javascript
+// Create a key/value pair
+const result = await client.kv.set('testKey', 'testValue');
+const value = await client.kv.get('testKey');
+
+console.log(`value set: ${value}`);
+
+// Deleting by key
+const result = await client.kv.del('testKey');
+console.log(`result of delete operation: ${result}`);
 ```
 
 ### AI Services
