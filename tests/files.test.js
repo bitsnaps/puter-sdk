@@ -21,7 +21,7 @@ describe('File Operations', () => {
       
       mockAxios.onPost('/readdir').reply(200, mockData);
       
-      const contents = await client.filesystem.list('/');
+      const contents = await client.fs.list('/');
       expect(contents).toEqual(mockData);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({ path: '/' }));
     });
@@ -34,7 +34,7 @@ describe('File Operations', () => {
 
       mockAxios.onPost('/mkdir').reply(200, mockResponse);
 
-      const result = await client.filesystem.createDirectory({
+      const result = await client.fs.createDirectory({
         path: '/new-directory',
         overwrite: false,
         dedupeName: true,
@@ -59,7 +59,7 @@ describe('File Operations', () => {
         }
       });
 
-      await expect(client.filesystem.createDirectory({
+      await expect(client.fs.createDirectory({
         path: '/existing-directory'
       })).rejects.toThrow('Directory already exists');
     });
@@ -77,7 +77,7 @@ describe('File Operations', () => {
 
       mockAxios.onPost('/stat').reply(200, mockResponse);
 
-      const result = await client.filesystem.getInfo('/test.txt');
+      const result = await client.fs.getInfo('/test.txt');
       expect(result).toEqual(mockResponse);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
         path: '/test.txt'
@@ -99,7 +99,7 @@ describe('File Operations', () => {
         .onPost('/rename')
         .reply(200, mockRenameResponse);
 
-      const result = await client.filesystem.rename('/old-name.txt', '/new-name.txt');
+      const result = await client.fs.rename('/old-name.txt', '/new-name.txt');
       expect(result).toEqual(mockRenameResponse);
 
       // Verify stat call
@@ -123,7 +123,7 @@ describe('File Operations', () => {
       
       mockAxios.onPost('/batch').reply(200, mockResponse);
       
-      const result = await client.filesystem.upload({
+      const result = await client.fs.upload({
         file: mockFile,
         path: '/uploads',
         name: 'test.txt'
@@ -143,7 +143,7 @@ describe('File Operations', () => {
 
       mockAxios.onPost('/delete').reply(200, mockResponse);
 
-      const result = await client.filesystem.delete('/test.txt');
+      const result = await client.fs.delete('/test.txt');
       expect(result).toEqual(mockResponse);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
         path: '/test.txt'
@@ -160,7 +160,7 @@ describe('File Operations', () => {
         }
       });
 
-      await expect(client.filesystem.getInfo('/nonexistent.txt'))
+      await expect(client.fs.getInfo('/nonexistent.txt'))
         .rejects.toThrow('File not found');
     });
 
@@ -172,7 +172,7 @@ describe('File Operations', () => {
         }
       });
 
-      await expect(client.filesystem.list('/restricted'))
+      await expect(client.fs.list('/restricted'))
         .rejects.toThrow('Permission denied');
     });
   });

@@ -237,9 +237,9 @@ export class PuterApps {
         );
 
         if (appSubdomain) {
-          const files = await this.client.filesystem.list(options.directory);
+          const files = await this.client.fs.list(options.directory);
           for (const file of files) {
-            await this.client.filesystem.copy(
+            await this.client.fs.copy(
               path.join(options.directory, file.name),
               appSubdomain.root_dir.path
             );

@@ -94,12 +94,12 @@ await client.auth.logout();
 
 ```javascript
 // List directory contents
-const files = await client.filesystem.list('/');
+const files = await client.fs.list('/');
 console.log('Files:', files);
 
 // Upload a file
 const file = new Blob(['Hello, Puter!'], { type: 'text/plain' });
-const uploadResult = await client.filesystem.upload({
+const uploadResult = await client.fs.upload({
   file,
   path: '/uploads',
   name: 'hello.txt'
@@ -107,7 +107,7 @@ const uploadResult = await client.filesystem.upload({
 console.log('Upload result:', uploadResult);
 
 // Create a directory
-const dirResult = await client.filesystem.createDirectory({
+const dirResult = await client.fs.createDirectory({
   path: '/new-directory'
 });
 console.log('Directory created:', dirResult);
@@ -177,7 +177,7 @@ The SDK uses custom error classes for consistent error handling:
 
 ```javascript
 try {
-  await client.filesystem.delete('/protected-file.txt');
+  await client.fs.delete('/protected-file.txt');
 } catch (error) {
   if (error.code === 'PERMISSION_DENIED') {
     console.error('Permission denied:', error.message);
