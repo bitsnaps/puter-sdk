@@ -1,4 +1,5 @@
 import { PuterError } from '../errors.js';
+import { INTERFACE_SUBDOMAINS } from '../constants.js';
 
 export class PuterSites {
   constructor(client) {
@@ -33,7 +34,7 @@ export class PuterSites {
 
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-subdomains',
+        interface: INTERFACE_SUBDOMAINS,
         method: 'read',
         args: { uid: siteId }
       });

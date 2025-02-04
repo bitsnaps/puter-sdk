@@ -1,4 +1,5 @@
 import { PuterError } from '../errors.js';
+import { INTERFACE_SUBDOMAINS } from '../constants.js';
 
 export class PuterSubdomains {
   constructor(client) {
@@ -21,7 +22,7 @@ export class PuterSubdomains {
 
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-subdomains',
+        interface: INTERFACE_SUBDOMAINS,
         method: 'create',
         args: {
           subdomain,
@@ -49,7 +50,7 @@ export class PuterSubdomains {
   async list() {
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-subdomains',
+        interface: INTERFACE_SUBDOMAINS,
         method: 'select'
       });
 
@@ -74,7 +75,7 @@ export class PuterSubdomains {
 
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-subdomains',
+        interface: INTERFACE_SUBDOMAINS,
         method: 'delete',
         args: {
           id: { subdomain: subdomainId }

@@ -1,4 +1,5 @@
 import { PuterError } from '../errors.js';
+import { INTERFACE_APPS } from '../constants.js';
 import crypto from '../crypto.js';
 
 export class PuterApps {
@@ -18,7 +19,7 @@ export class PuterApps {
   
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-apps',
+        interface: INTERFACE_APPS,
         method: 'select',
         args: {
           params: { icon_size: iconSize },
@@ -53,7 +54,7 @@ export class PuterApps {
   
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-apps',
+        interface: INTERFACE_APPS,
         method: 'read',
         args: {
           id: { name }
@@ -82,7 +83,7 @@ export class PuterApps {
     const { name, url, description = '' } = options;
     
     const response = await this.client.http.post('/drivers/call', {
-      interface: 'puter-apps',
+      interface: INTERFACE_APPS,
       method: 'create',
       args: {
         object: {
@@ -145,7 +146,7 @@ export class PuterApps {
 
   async updateAppWithSubdomain(app, subdomainName) {
     const response = await this.client.http.post('/drivers/call', {
-      interface: 'puter-apps',
+      interface: INTERFACE_APPS,
       method: 'update',
       args: {
         id: { name: app.name },
@@ -272,7 +273,7 @@ export class PuterApps {
 
       // Step 2: Delete app
       const deleteResponse = await this.client.http.post('/drivers/call', {
-        interface: 'puter-apps',
+        interface: INTERFACE_APPS,
         method: 'delete',
         args: {
           id: { name }

@@ -2,6 +2,7 @@ import axios from 'axios';
 import { PuterUsage } from './resources/usage.js';
 import { PuterAuth } from './resources/auth.js';
 import { PuterFileSystem } from './resources/fs.js';
+import { PuterKV } from './resources/kv.js';
 import { PuterApps } from './resources/apps.js';
 import { PuterSites } from './resources/sites.js';
 import { PuterSubdomains } from './resources/subdomains.js';
@@ -24,6 +25,7 @@ export default class PuterClient {
     // Initialize resources
     this.auth = new PuterAuth(this);
     this.fs = new PuterFileSystem(this);
+    this.kv = new PuterKV(this);
     this.apps = new PuterApps(this);
     this.sites = new PuterSites(this);
     this.subdomains = new PuterSubdomains(this);

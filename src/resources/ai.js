@@ -1,4 +1,5 @@
 import { PuterError } from '../errors.js';
+import { INTERFACE_CHAT_COMPLETION, INTERFACE_OCR, INTERFACE_TTS, INTERFACE_IMGE_GENERATION } from '../constants.js';
 
 export class PuterAI {
   constructor(client) {
@@ -24,7 +25,7 @@ export class PuterAI {
 
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-chat-completion',
+        interface: INTERFACE_CHAT_COMPLETION,
         driver: 'openai-completion',
         test_mode: false,
         method: 'complete',
@@ -56,7 +57,7 @@ export class PuterAI {
 
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-chat-completion',
+        interface: INTERFACE_CHAT_COMPLETION,
         driver: 'openai-completion',
         test_mode: false,
         method: 'complete_stream',
@@ -86,7 +87,7 @@ export class PuterAI {
 
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-ocr',
+        interface: INTERFACE_OCR,
         method: 'recognize',
         args: {
           source: fileId
@@ -121,7 +122,7 @@ export class PuterAI {
 
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-image-generation',
+        interface: INTERFACE_IMGE_GENERATION,
         method: 'generate',
         args: {
           prompt
@@ -148,7 +149,7 @@ export class PuterAI {
   async listVoices() {
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-tts',
+        interface: INTERFACE_TTS,
         method: 'list_voices'
       });
 
@@ -181,7 +182,7 @@ export class PuterAI {
 
     try {
       const response = await this.client.http.post('/drivers/call', {
-        interface: 'puter-tts',
+        interface: INTERFACE_TTS,
         method: 'synthesize',
         args: {
           text,
