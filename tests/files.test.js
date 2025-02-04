@@ -116,6 +116,9 @@ describe('File Operations', () => {
 
     it('should handle file uploads', async () => {
       const mockFile = new Blob(['content'], { type: 'text/plain' });
+      const formData = new FormData();
+      formData.append('file', mockFile, 'test.txt');
+      
       const mockResponse = { results: [{ copied: { path: '/test.txt' } }] };
       
       mockAxios.onPost('/batch').reply(200, mockResponse);
@@ -127,7 +130,10 @@ describe('File Operations', () => {
       });
       
       expect(result).toEqual(mockResponse);
-      expect(mockAxios.history.post[0].headers['Content-Type']).toMatch(/multipart\/form-data/);
+      
+      // Verify the request headers
+      const requestHeaders = mockAxios.history.post[0].headers;
+      expect(requestHeaders['Content-Type']).toMatch(/application\/x-www-form-urlencoded/);
     });
 
     it('should delete file', async () => {

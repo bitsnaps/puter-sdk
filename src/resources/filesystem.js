@@ -56,12 +56,8 @@ export class PuterFileSystem {
       name 
     }));
     formData.append('file', file);
-
-    const response = await this.client.http.post('/batch', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-
-    return response;
+  
+    return this.client.http.post('/batch', formData);
   }
 
   async delete(path) {

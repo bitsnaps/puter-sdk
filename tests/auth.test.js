@@ -24,7 +24,7 @@ describe('Authentication', () => {
     const result = await client.auth.login('user', 'pass');
     expect(result).toEqual({ proceed: true, token: 'test-token' });
     expect(client.token).toBe('test-token');
-    expect(client.http.defaults.headers.common['Authorization']).toBe('Bearer test-token');
+    expect(client.http.defaults.headers['Authorization']).toBe('Bearer test-token');
   });
 
   it('should throw error with invalid credentials', async () => {

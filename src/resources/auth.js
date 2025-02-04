@@ -1,4 +1,4 @@
-import { PuterError } from '../errors';
+import { PuterError } from '../errors.js';
 
 export class PuterAuth {
   constructor(client) {
@@ -23,7 +23,7 @@ export class PuterAuth {
         username,
         password
       });
-  
+
       // Handle 2FA if required
       if (response.proceed && response.next_step === 'otp') {
         if (!otp) {
@@ -51,7 +51,7 @@ export class PuterAuth {
   
       // Update client with new token
       this.client.token = response.token;
-      this.client.http.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
+      this.client.http.defaults.headers['Authorization'] = `Bearer ${response.token}`;
   
       return response;
     } catch (error) {
@@ -70,7 +70,7 @@ export class PuterAuth {
     try {
       await this.client.http.post('/logout');
       this.client.token = null;
-      delete this.client.http.defaults.headers.common['Authorization'];
+      delete this.client.http.defaults.headers['Authorization'];
     } catch (error) {
       if (error.response?.data?.error) {
         throw new PuterError(error.response.data.error);

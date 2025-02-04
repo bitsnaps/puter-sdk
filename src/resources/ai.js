@@ -1,4 +1,4 @@
-import { PuterError } from '../errors';
+import { PuterError } from '../errors.js';
 
 export class PuterAI {
   constructor(client) {
