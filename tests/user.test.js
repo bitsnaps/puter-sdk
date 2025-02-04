@@ -1,13 +1,17 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, beforeAll} from 'vitest';
 import PuterClient from '../src/index';
 import { mockAxios } from './mocks/axios';
+import dotenv from 'dotenv';
+
 
 describe('User Operations', () => {
+
   let client;
   const errorMessage = 'Failed to get user information';
 
-  beforeEach(() => {
-    client = new PuterClient({ token: 'test-token' });
+  beforeEach(async () => {
+    // client = new PuterClient({ token: 'test-token' });
+    client = new PuterClient();
     mockAxios.reset();
   });
 
@@ -82,6 +86,12 @@ describe('User Operations', () => {
       }));
     });
 
+    it('should authenticate with API key', async () => {
+      const apiKey = 'test-api-key';
+      client = new PuterClient({ token: apiKey });
+      expect(client.token).toBe(apiKey);
+    });
+
     it('should handle invalid credentials', async () => {
       mockAxios.onPost('/login').reply(200, {
         proceed: false,
@@ -137,27 +147,16 @@ describe('User Operations', () => {
 
   describe('User Sessions', () => {
     it('should logout user', async () => {
-      mockAxios.onPost('/logout').reply(200, {
-        success: true
-      });
-
       await client.auth.logout();
       expect(client.token).toBeNull();
-      expect(mockAxios.history.post[0].data).toBeUndefined();
-      // expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({}));
+      expect(mockAxios.history.post.length).toEqual(0);
     });
 
-    it('should handle logout errors', async () => {
-      const failedErrorMessage = "Failed to logout";
+    it('should not have logout request', async () => {
+      mockAxios.onPost('/logout');
 
-      mockAxios.onPost('/logout').reply(500, {
-        error: {
-          message: failedErrorMessage
-        }
-      });
-
-      await expect(client.auth.logout())
-        .rejects.toThrow(failedErrorMessage);
+      await client.auth.logout();
+      expect(mockAxios.history.post.length).toEqual(0);
     });
   });
 });

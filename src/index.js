@@ -48,7 +48,6 @@ export default class PuterClient {
         delete config.headers['Content-Type'];
         // We let the browser set the Content-Type with the correct boundary
         // This is handled automatically by the browser's FormData implementation
-
       }
   
       return config;

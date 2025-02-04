@@ -14,6 +14,12 @@ export class PuterAuth {
    * @throws {Error} If authentication fails
    */
   async login(username, password, otp = null) {
+    if (this.client.token) {
+      // Check if user is already logged
+      console.error('You are already logged!');
+      return;
+    }
+
     if (!username || !password) {
       throw new Error('Username and password are required');
     }
@@ -64,18 +70,19 @@ export class PuterAuth {
 
   /**
    * Logout the current user
-   * @returns {Promise<void>}
+   * @returns {void}
    */
-  async logout() {
+  logout() {
     try {
-      await this.client.http.post('/logout');
+      // There is no such call
+      // await this.client.http.post('/logout');
       this.client.token = null;
       delete this.client.http.defaults.headers['Authorization'];
     } catch (error) {
       if (error.response?.data?.error) {
         throw new PuterError(error.response.data.error);
       }
-      throw new Error('Failed to logout');
+      throw new Error(`Failed to logout : ${error.message}`);
     }
   }
     

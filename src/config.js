@@ -4,5 +4,5 @@ dotenv.config();
 
 export default {
   apiKey: process.env.PUTER_API_KEY,
-  apiBaseUrl: process.env.PUTER_API_BASE_URL
+  apiBaseUrl: process.env.PUTER_BASE_URL
 };

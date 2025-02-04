@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "build": "vitest src/**",
-    "test:dev": "vitest tests/*",
-    "test": "vitest run tests/*",
+    "test:dev": "PUTER_API_KEY='' vitest tests/*",
+    "test": "PUTER_API_KEY='' vitest run tests/*",
     "coverage": "vitest run --coverage"
   },
   "engines": {
