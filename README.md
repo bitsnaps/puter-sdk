@@ -191,10 +191,6 @@ try {
 
 We welcome contributions! Please see our [Contribution Guidelines](CONTRIBUTING.md) for more information.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Work in progress
 
 Please note that we are still actively working on this project, and as such, there may be errors or incomplete features. We appreciate your understanding and welcome any feedback or contributions as we continue to improve and refine the SDK.
@@ -202,10 +198,8 @@ Please note that we are still actively working on this project, and as such, the
 
 ## Support
 
-For support, please open an issue on our [GitHub repository](https://github.com/HeyPuter/puter-sdk) or contact support@puter.com.
+For support, please open an issue on our [GitHub repository](https://github.com/HeyPuter/puter-sdk) or contact [puter's team](mailto:hey@puter.com).
 
----
+## License
 
-This README provides a comprehensive overview of the SDK's capabilities, installation instructions, usage examples, and additional resources. It follows best practices for open-source project documentation and provides clear examples for each major feature.
-
-Would you like me to add or modify any sections of the README?
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
