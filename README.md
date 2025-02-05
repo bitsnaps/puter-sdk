@@ -85,8 +85,12 @@ const puter = new PuterClient({
 
 ```javascript
 // Login using your credentials:
-const authResult = await puter.auth.signIn('username', 'password');
-console.log('Logged in with token:', authResult.token);
+const puter = await puter.auth.signIn('username', 'password');
+console.log('Logged in with token:', puter.token);
+
+// or just create a new instance:
+const puter = new PuterClient();
+// P.S. The client will look for `PUTER_API_KEY` in .env file name or provide as a variable environnement.
 
 // Get current user
 const userInfo = await puter.auth.getUser();
