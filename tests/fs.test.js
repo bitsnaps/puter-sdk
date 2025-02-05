@@ -21,7 +21,7 @@ describe('File Operations', () => {
       
       mockAxios.onPost('/readdir').reply(200, mockData);
       
-      const contents = await client.fs.list('/');
+      const contents = await client.fs.readdir('/');
       expect(contents).toEqual(mockData);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({ path: '/' }));
     });
@@ -34,7 +34,7 @@ describe('File Operations', () => {
 
       mockAxios.onPost('/mkdir').reply(200, mockResponse);
 
-      const result = await client.fs.createDirectory({
+      const result = await client.fs.mkdir({
         path: '/new-directory',
         overwrite: false,
         dedupeName: true,
@@ -59,7 +59,7 @@ describe('File Operations', () => {
         }
       });
 
-      await expect(client.fs.createDirectory({
+      await expect(client.fs.mkdir({
         path: '/existing-directory'
       })).rejects.toThrow('Directory already exists');
     });
@@ -172,7 +172,7 @@ describe('File Operations', () => {
         }
       });
 
-      await expect(client.fs.list('/restricted'))
+      await expect(client.fs.readdir('/restricted'))
         .rejects.toThrow('Permission denied');
     });
   });

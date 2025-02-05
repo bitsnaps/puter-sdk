@@ -138,7 +138,7 @@ export class PuterApps {
 
   async createAppSubdomain(app, dirResponse) {
     const subdomainName = `${app.name}-${dirResponse.uid.split('-')[0]}`;
-    return this.client.subdomains.create({
+    return this.client.hosting.create({
       subdomain: subdomainName,
       rootDir: dirResponse.path
     });
@@ -232,13 +232,13 @@ export class PuterApps {
 
       // Step 2: Update files if directory is provided
       if (options.directory) {
-        const subdomains = await this.client.subdomains.list();
-        const appSubdomain = subdomains.find(sd => 
+        const hosting = await this.client.hosting.list();
+        const appSubdomain = hosting.find(sd => 
           sd.root_dir?.dirname?.endsWith(app.uid)
         );
 
         if (appSubdomain) {
-          const files = await this.client.fs.list(options.directory);
+          const files = await this.client.fs.readdir(options.directory);
           for (const file of files) {
             await this.client.fs.copy(
               path.join(options.directory, file.name),
@@ -285,13 +285,13 @@ export class PuterApps {
       }
 
       // Step 3: Delete associated subdomain
-      const subdomains = await this.client.subdomains.list();
-      const appSubdomain = subdomains.find(sd => 
+      const hosting = await this.client.hosting.list();
+      const appSubdomain = hosting.find(sd => 
         sd.root_dir?.dirname?.endsWith(app.uid)
       );
 
       if (appSubdomain) {
-        await this.client.subdomains.delete(appSubdomain.uid);
+        await this.client.hosting.delete(appSubdomain.uid);
       }
 
       return true;

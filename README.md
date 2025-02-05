@@ -46,8 +46,8 @@ The official JavaScript SDK for interacting with the **Puter Cloud Platform**. I
   - Session management
 
 - **Subdomain Management**
-  - Create and manage subdomains
-  - Link subdomains to directories
+  - Create and manage hosting
+  - Link hosting to directories
   - Manage static site hosting
 
 ## Installation
@@ -75,7 +75,7 @@ pnpm add puter-sdk
 import PuterClient from 'puter-sdk';
 
 // Initialize the client
-const client = new PuterClient({
+const puter = new PuterClient({
   token: 'your-api-token', // Optional, can be set later
   baseURL: 'https://api.puter.com' // Optional
 });
@@ -85,27 +85,27 @@ const client = new PuterClient({
 
 ```javascript
 // Login using your credentials:
-const authResult = await client.auth.login('username', 'password');
+const authResult = await puter.auth.signIn('username', 'password');
 console.log('Logged in with token:', authResult.token);
 
 // Get current user
-const userInfo = await client.auth.getCurrentUser();
+const userInfo = await puter.auth.getUser();
 console.log('User info:', userInfo);
 
 // Logout
-await client.auth.logout();
+await puter.auth.signOut();
 ```
 
 ### File Management
 
 ```javascript
 // List directory contents
-const files = await client.fs.list('/');
+const files = await puter.fs.readdir('/');
 console.log('Files:', files);
 
 // Upload a file
 const file = new Blob(['Hello, Puter!'], { type: 'text/plain' });
-const uploadResult = await client.fs.upload({
+const uploadResult = await puter.fs.upload({
   file,
   path: '/uploads',
   name: 'hello.txt'
@@ -113,7 +113,7 @@ const uploadResult = await client.fs.upload({
 console.log('Upload result:', uploadResult);
 
 // Create a directory
-const dirResult = await client.fs.createDirectory({
+const dirResult = await puter.fs.mkdir({
   path: '/new-directory'
 });
 console.log('Directory created:', dirResult);
@@ -123,14 +123,14 @@ console.log('Directory created:', dirResult);
 
 ```javascript
 // Create a new app
-const app = await client.apps.create({
+const app = await puter.apps.create({
   name: 'my-app',
   url: 'https://my-app.com'
 });
 console.log('Created app:', app);
 
 // List all apps
-const apps = await client.apps.list();
+const apps = await puter.apps.list();
 console.log('Apps:', apps);
 ```
 
@@ -139,13 +139,13 @@ console.log('Apps:', apps);
 
 ```javascript
 // Create a key/value pair
-const result = await client.kv.set('testKey', 'testValue');
-const value = await client.kv.get('testKey');
+const result = await puter.kv.set('testKey', 'testValue');
+const value = await puter.kv.get('testKey');
 
 console.log(`value set: ${value}`);
 
 // Deleting by key
-const result = await client.kv.del('testKey');
+const result = await puter.kv.del('testKey');
 console.log(`result of delete operation: ${result}`);
 ```
 
@@ -153,24 +153,24 @@ console.log(`result of delete operation: ${result}`);
 
 ```javascript
 // Chat completion
-const chatResponse = await client.ai.chatComplete([{
+const chatResponse = await puter.ai.chat([{
   role: 'user',
   content: 'What is Puter?'
 }]);
 console.log('AI response:', chatResponse.message.content);
 
 // Image generation
-const image = await client.ai.generateImage({
+const image = await puter.ai.txt2img({
   prompt: 'A futuristic cityscape'
 });
 console.log('Generated image:', image.url);
 
 // OCR
-const ocrResult = await client.ai.ocrRecognize('file-id-123');
+const ocrResult = await puter.ai.img2txt('file-id-123');
 console.log('Extracted text:', ocrResult.text);
 
 // Text-to-Speech
-const audioStream = await client.ai.synthesizeSpeech({
+const audioStream = await puter.ai.txt2speech({
   text: 'Hello, world!',
   voice: 'voice-1'
 });
@@ -181,15 +181,15 @@ const audioStream = await client.ai.synthesizeSpeech({
 
 ```javascript
 // Create a subdomain
-const subdomain = await client.subdomains.create({
+const subdomain = await puter.hosting.create({
   subdomain: 'mysite',
   rootDir: '/my-site-files'
 });
 console.log('Created subdomain:', subdomain);
 
-// List subdomains
-const subdomains = await client.subdomains.list();
-console.log('Subdomains:', subdomains);
+// List web sites
+const sites = await puter.hosting.list();
+console.log('sites:', sites);
 ```
 
 ## Error Handling
@@ -198,7 +198,7 @@ The SDK uses custom error classes for consistent error handling:
 
 ```javascript
 try {
-  await client.fs.delete('/protected-file.txt');
+  await puter.fs.delete('/protected-file.txt');
 } catch (error) {
   if (error.code === 'PERMISSION_DENIED') {
     console.error('Permission denied:', error.message);

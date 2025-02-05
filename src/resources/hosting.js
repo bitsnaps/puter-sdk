@@ -1,7 +1,7 @@
 import { PuterError } from '../errors.js';
 import { INTERFACE_SUBDOMAINS } from '../constants.js';
 
-export class PuterSubdomains {
+export class PuterHosting {
   constructor(client) {
     this.client = client;
   }
@@ -44,8 +44,8 @@ export class PuterSubdomains {
   }
 
   /**
-   * List all subdomains
-   * @returns {Promise<Array>} List of subdomains
+   * List all hosting
+   * @returns {Promise<Array>} List of hosting
    */
   async list() {
     try {
@@ -59,7 +59,7 @@ export class PuterSubdomains {
       if (error.response?.data?.error) {
         throw new PuterError(error.response.data.error);
       }
-      throw new Error('Failed to list subdomains');
+      throw new Error('Failed to list hosting');
     }
   }
 

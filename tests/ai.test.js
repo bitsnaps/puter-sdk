@@ -70,7 +70,7 @@ describe('AI Operations', () => {
 
       mockAxios.onPost('/drivers/call').reply(200, mockResponse);
 
-      const result = await client.ai.chatComplete([{
+      const result = await client.ai.chat([{
         role: 'user',
         content: 'What is Puter?'
       }]);
@@ -98,19 +98,19 @@ describe('AI Operations', () => {
         }
       });
 
-      await expect(client.ai.chatComplete([{
+      await expect(client.ai.chat([{
         role: 'user',
         content: 'What is Puter?'
       }])).rejects.toThrow('AI service unavailable');
     });
 
     it('should handle empty messages', async () => {
-      await expect(client.ai.chatComplete([]))
+      await expect(client.ai.chat([]))
         .rejects.toThrow('At least one message is required');
     });
 
     it('should handle invalid message format', async () => {
-      await expect(client.ai.chatComplete([{
+      await expect(client.ai.chat([{
         text: 'Invalid format'
       }])).rejects.toThrow('Invalid message format');
     });
@@ -173,7 +173,7 @@ describe('AI Operations', () => {
 
       mockAxios.onPost('/drivers/call').reply(200, mockResponse);
 
-      const result = await client.ai.ocrRecognize('file-id-123');
+      const result = await client.ai.img2txt('file-id-123');
       expect(result).toEqual(mockResponse.result);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
         interface: 'puter-ocr',
@@ -192,7 +192,7 @@ describe('AI Operations', () => {
         }
       });
 
-      await expect(client.ai.ocrRecognize('file-id-123'))
+      await expect(client.ai.img2txt('file-id-123'))
         .rejects.toThrow('OCR processing failed');
     });
   });
@@ -208,7 +208,7 @@ describe('AI Operations', () => {
 
       mockAxios.onPost('/drivers/call').reply(200, mockResponse);
 
-      const result = await client.ai.generateImage({
+      const result = await client.ai.txt2img({
         prompt: 'A beautiful landscape'
       });
 
@@ -230,7 +230,7 @@ describe('AI Operations', () => {
         }
       });
 
-      await expect(client.ai.generateImage({
+      await expect(client.ai.txt2img({
         prompt: ''
       })).rejects.toThrow(errorMessage);
     });
@@ -256,7 +256,7 @@ describe('AI Operations', () => {
         const mockStream = createMockAudioStream();
         mockAxios.onPost('/drivers/call').reply(200, mockStream);
   
-        const result = await client.ai.synthesizeSpeech({
+        const result = await client.ai.txt2speech({
           text: 'Hello world',
           voice: 'voice-1'
         });
@@ -289,7 +289,7 @@ describe('AI Operations', () => {
         }
       });
 
-      await expect(client.ai.synthesizeSpeech({
+      await expect(client.ai.txt2speech({
         text: 'Hello',
         voice: 'invalid-voice'
       })).rejects.toThrow(errorMessage);

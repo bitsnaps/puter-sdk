@@ -13,7 +13,7 @@ export class PuterAuth {
    * @returns {Promise<object>} Authentication result
    * @throws {Error} If authentication fails
    */
-  async login(username, password, otp = null) {
+  async signIn(username, password, otp = null) {
     if (this.client.token) {
       // Check if user is already logged
       console.error('You are already logged!');
@@ -72,7 +72,7 @@ export class PuterAuth {
    * Logout the current user
    * @returns {void}
    */
-  logout() {
+  signOut() {
     try {
       // There is no such call
       // await this.client.http.post('/logout');
@@ -90,7 +90,7 @@ export class PuterAuth {
    * Get current authenticated user information
    * @returns {Promise<object>} User information
    */
-  async getCurrentUser() {
+  async getUser() {
     try {
       const response = await this.client.http.get('/whoami');
       return response;

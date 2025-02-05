@@ -26,7 +26,7 @@ describe('Subdomain Management', () => {
 
       mockAxios.onPost('/drivers/call').reply(200, mockResponse);
 
-      const result = await client.subdomains.create({
+      const result = await client.hosting.create({
         subdomain: 'mysubdomain',
         rootDir: '/my/path'
       });
@@ -51,15 +51,15 @@ describe('Subdomain Management', () => {
         }
       });
 
-      await expect(client.subdomains.create({
+      await expect(client.hosting.create({
         subdomain: 'existing',
         rootDir: '/path'
       })).rejects.toThrow('Subdomain already exists');
     });
   });
 
-  describe('List Subdomains', () => {
-    it('should list subdomains', async () => {
+  describe('List Hosting', () => {
+    it('should list hosting', async () => {
       const mockResponse = {
         result: [
           {
@@ -75,7 +75,7 @@ describe('Subdomain Management', () => {
 
       mockAxios.onPost('/drivers/call').reply(200, mockResponse);
 
-      const result = await client.subdomains.list();
+      const result = await client.hosting.list();
       expect(result).toEqual(mockResponse.result);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
         interface: 'puter-subdomains',
@@ -88,19 +88,19 @@ describe('Subdomain Management', () => {
         result: []
       });
 
-      const result = await client.subdomains.list();
+      const result = await client.hosting.list();
       expect(result).toEqual([]);
     });
 
     it('should handle listing errors', async () => {
       mockAxios.onPost('/drivers/call').reply(500, {
         error: {
-          message: 'Failed to list subdomains'
+          message: 'Failed to list hosting'
         }
       });
 
-      await expect(client.subdomains.list())
-        .rejects.toThrow('Failed to list subdomains');
+      await expect(client.hosting.list())
+        .rejects.toThrow('Failed to list hosting');
     });
   });
 
@@ -112,7 +112,7 @@ describe('Subdomain Management', () => {
 
       mockAxios.onPost('/drivers/call').reply(200, mockResponse);
 
-      const result = await client.subdomains.delete('sub-123');
+      const result = await client.hosting.delete('sub-123');
       expect(result).toEqual(mockResponse);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
         interface: 'puter-subdomains',
@@ -132,7 +132,7 @@ describe('Subdomain Management', () => {
         }
       });
 
-      await expect(client.subdomains.delete('nonexistent'))
+      await expect(client.hosting.delete('nonexistent'))
         .rejects.toThrow('Subdomain not found');
     });
 
@@ -144,7 +144,7 @@ describe('Subdomain Management', () => {
         }
       });
 
-      await expect(client.subdomains.delete('sub-123'))
+      await expect(client.hosting.delete('sub-123'))
         .rejects.toThrow('Internal server error');
     });
   });

@@ -21,7 +21,7 @@ describe('Authentication', () => {
       token: 'test-token'
     });
 
-    const result = await client.auth.login('user', 'pass');
+    const result = await client.auth.signIn('user', 'pass');
     expect(result).toEqual({ proceed: true, token: 'test-token' });
     expect(client.token).toBe('test-token');
     expect(client.http.defaults.headers['Authorization']).toBe('Bearer test-token');
@@ -33,12 +33,12 @@ describe('Authentication', () => {
       token: null
     });
 
-    await expect(client.auth.login('invalid', 'creds'))
+    await expect(client.auth.signIn('invalid', 'creds'))
       .rejects.toThrow('Authentication failed');
   });
 
   it('should throw error when username/password is missing', async () => {
-    await expect(client.auth.login())
+    await expect(client.auth.signIn())
       .rejects.toThrow('Username and password are required');
   });
 
@@ -50,7 +50,7 @@ describe('Authentication', () => {
       }
     });
   
-    await expect(client.auth.login('user', 'pass'))
+    await expect(client.auth.signIn('user', 'pass'))
       .rejects.toThrow(/Internal server error/);
   });
 
@@ -67,8 +67,8 @@ describe('Authentication', () => {
 
     mockAxios.onGet('/whoami').reply(200, mockUser);
 
-    await client.auth.login('user', 'pass');
-    const user = await client.auth.getCurrentUser();
+    await client.auth.signIn('user', 'pass');
+    const user = await client.auth.getUser();
     expect(user).toEqual(mockUser);
   });
 
@@ -76,7 +76,7 @@ describe('Authentication', () => {
     const errorMessage = 'Failed to get user information';
     mockAxios.onGet('/whoami').reply(401, { error: new PuterError(errorMessage) });
 
-    await expect(client.auth.getCurrentUser())
+    await expect(client.auth.getUser())
       .rejects.toThrow(errorMessage);
   });
 
@@ -94,7 +94,7 @@ describe('Authentication', () => {
       token: 'final-token'
     });
 
-    const result = await client.auth.login('user', 'pass', '123456');
+    const result = await client.auth.signIn('user', 'pass', '123456');
     expect(result).toEqual({
       proceed: true,
       token: 'final-token'
@@ -109,7 +109,7 @@ describe('Authentication', () => {
       otp_jwt_token: 'temp-token'
     });
 
-    await expect(client.auth.login('user', 'pass'))
+    await expect(client.auth.signIn('user', 'pass'))
       .rejects.toThrow('2FA required - OTP is needed');
   });
 
@@ -130,7 +130,7 @@ describe('Authentication', () => {
       }
     });
 
-    await expect(client.auth.login('user', 'pass', 'wrong-otp'))
+    await expect(client.auth.signIn('user', 'pass', 'wrong-otp'))
       .rejects.toThrow('Invalid OTP code');
   });
 
@@ -140,7 +140,7 @@ describe('Authentication', () => {
       next_step: 'unknown_step'
     });
 
-    await expect(client.auth.login('user', 'pass'))
+    await expect(client.auth.signIn('user', 'pass'))
       .rejects.toThrow('Unsupported authentication step: unknown_step');
   });
   

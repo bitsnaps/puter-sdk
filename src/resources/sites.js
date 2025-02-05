@@ -12,8 +12,8 @@ export class PuterSites {
    */
   async list() {
     try {
-      // Reuse subdomains functionality
-      return await this.client.subdomains.list();
+      // Reuse hosting functionality
+      return await this.client.hosting.list();
     } catch (error) {
       if (error.response?.data?.error) {
         throw new PuterError(error.response.data.error);
@@ -68,13 +68,13 @@ export class PuterSites {
 
     try {
       // Check if subdomain is available
-      const existing = await this.client.subdomains.list();
+      const existing = await this.client.hosting.list();
       if (existing.some(s => s.subdomain === name)) {
         throw new Error('Subdomain already exists');
       }
 
       // Create the site (subdomain)
-      return await this.client.subdomains.create({
+      return await this.client.hosting.create({
         subdomain: name,
         rootDir: directory
       });
@@ -103,7 +103,7 @@ export class PuterSites {
       });
 
       // Then delete the subdomain
-      const response = await this.client.subdomains.delete(siteId);
+      const response = await this.client.hosting.delete(siteId);
       if (!response.ok){
         console.error(`Failed to delete a subdomain for site: ${siteId}`);
       }

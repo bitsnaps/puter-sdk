@@ -11,7 +11,7 @@ export class PuterAI {
    * @param {Array} messages - Array of chat messages
    * @returns {Promise<object>} Chat completion result
    */
-  async chatComplete(messages) {
+  async chat(messages) {
     if (!Array.isArray(messages) || messages.length === 0) {
       throw new Error('At least one message is required');
     }
@@ -80,7 +80,7 @@ export class PuterAI {
    * @param {string} fileId - ID of the file to process
    * @returns {Promise<object>} OCR result
    */
-  async ocrRecognize(fileId) {
+  async img2txt(fileId) {
     if (!fileId) {
       throw new Error('File ID is required');
     }
@@ -113,7 +113,7 @@ export class PuterAI {
    * @param {string} options.prompt - Text prompt for image generation
    * @returns {Promise<object>} Generated image details
    */
-  async generateImage(options) {
+  async txt2img(options) {
     const { prompt } = options;
 
     if (!prompt) {
@@ -173,7 +173,7 @@ export class PuterAI {
    * @param {string} options.voice - Voice ID to use
    * @returns {Promise<Stream>} Audio stream
    */
-  async synthesizeSpeech(options) {
+  async txt2speech(options) {
     const { text, voice } = options;
 
     if (!text || !voice) {

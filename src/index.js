@@ -5,7 +5,7 @@ import { PuterFileSystem } from './resources/fs.js';
 import { PuterKV } from './resources/kv.js';
 import { PuterApps } from './resources/apps.js';
 import { PuterSites } from './resources/sites.js';
-import { PuterSubdomains } from './resources/subdomains.js';
+import { PuterHosting } from './resources/hosting.js';
 import { PuterAI } from './resources/ai.js';
 import { PuterError } from './errors.js';
 import config from './config.js';
@@ -28,7 +28,7 @@ export default class PuterClient {
     this.kv = new PuterKV(this);
     this.apps = new PuterApps(this);
     this.sites = new PuterSites(this);
-    this.subdomains = new PuterSubdomains(this);
+    this.hosting = new PuterHosting(this);
     this.usage = new PuterUsage(this);
     this.ai = new PuterAI(this);
   

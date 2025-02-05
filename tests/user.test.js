@@ -33,7 +33,7 @@ describe('User Operations', () => {
       
       mockAxios.onGet('/whoami').reply(200, mockUserInfo);
 
-      const response = await client.auth.getCurrentUser();
+      const response = await client.auth.getUser();
       expect(response).toEqual(mockUserInfo);
       expect(mockAxios.history.get.length).toEqual(1);
     });
@@ -45,7 +45,7 @@ describe('User Operations', () => {
         }
       });
 
-      await expect(client.auth.getCurrentUser())
+      await expect(client.auth.getUser())
         .rejects.toThrow(errorMessage);
     });
 
@@ -56,14 +56,14 @@ describe('User Operations', () => {
         }
       });
 
-      await expect(client.auth.getCurrentUser())
+      await expect(client.auth.getUser())
         .rejects.toThrow(errorMessage);
     });
 
     it('should handle empty response', async () => {
       mockAxios.onGet('/whoami').reply(200, {});
 
-      const response = await client.auth.getCurrentUser();
+      const response = await client.auth.getUser();
       expect(response).toEqual({});
     });
   });
@@ -77,7 +77,7 @@ describe('User Operations', () => {
 
       mockAxios.onPost('/login').reply(200, mockResponse);
 
-      const result = await client.auth.login('admin', 'password');
+      const result = await client.auth.signIn('admin', 'password');
       expect(result).toEqual(mockResponse);
       expect(client.token).toBe('test-token-123');
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
@@ -98,7 +98,7 @@ describe('User Operations', () => {
         token: null
       });
 
-      await expect(client.auth.login('wrong', 'credentials'))
+      await expect(client.auth.signIn('wrong', 'credentials'))
         .rejects.toThrow('Authentication failed');
     });
 
@@ -117,7 +117,7 @@ describe('User Operations', () => {
       mockAxios.onPost('/login').reply(200, firstResponse);
       mockAxios.onPost('/login').reply(200, secondResponse);
 
-      const result = await client.auth.login('admin', 'password', '123456');
+      const result = await client.auth.signIn('admin', 'password', '123456');
       expect(result).toEqual(secondResponse);
       expect(client.token).toBe('final-token');
     });
@@ -140,14 +140,14 @@ describe('User Operations', () => {
             }
           });
 
-      await expect(client.auth.login('admin', 'password', 'wrong-otp'))
+      await expect(client.auth.signIn('admin', 'password', 'wrong-otp'))
         .rejects.toThrow('Invalid OTP code');
     });
   });
 
   describe('User Sessions', () => {
     it('should logout user', async () => {
-      await client.auth.logout();
+      await client.auth.signOut();
       expect(client.token).toBeNull();
       expect(mockAxios.history.post.length).toEqual(0);
     });
@@ -155,7 +155,7 @@ describe('User Operations', () => {
     it('should not have logout request', async () => {
       mockAxios.onPost('/logout');
 
-      await client.auth.logout();
+      await client.auth.signOut();
       expect(mockAxios.history.post.length).toEqual(0);
     });
   });

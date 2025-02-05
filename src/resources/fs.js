@@ -3,12 +3,12 @@ export class PuterFileSystem {
     this.client = client;
   }
 
-  async list(path) {
+  async readdir(path) {
     const response = await this.client.http.post('/readdir', { path });
     return response;
   }
 
-  async createDirectory(options) {
+  async mkdir(options) {
     const { path, overwrite = false, dedupeName = true, createParents = true } = options;
     const parent = path.split('/').slice(0, -1).join('/') || '/';
     const dirName = path.split('/').pop();
