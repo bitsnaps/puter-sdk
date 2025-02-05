@@ -69,6 +69,19 @@ export class PuterAuth {
   }
 
   /**
+   * Check if user is signed in
+   * @returns {boolean} Returns true if signed in, false otherwise
+   */
+  isSignedIn() {
+    // Check if we have a token and it's not expired
+    if (!this.client.token) {
+      return false;
+    }
+    // We may need to add JWT expiration check if tokens are JWTs
+    return true;
+  }
+
+  /**
    * Logout the current user
    * @returns {void}
    */

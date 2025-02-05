@@ -144,4 +144,37 @@ describe('Authentication', () => {
       .rejects.toThrow('Unsupported authentication step: unknown_step');
   });
   
+  it('should return false when not signed in', () => {
+    expect(client.auth.isSignedIn()).toBe(false);
+  });
+
+  it('should return true after successful sign in', async () => {
+    mockAxios.onPost('/login').reply(200, {
+      proceed: true,
+      token: 'test-token'
+    });
+
+    await client.auth.signIn('user', 'pass');
+    expect(client.auth.isSignedIn()).toBe(true);
+  });
+
+  it('should return false after sign out', async () => {
+    mockAxios.onPost('/login').reply(200, {
+      proceed: true,
+      token: 'test-token'
+    });
+    mockAxios.onPost('/signOut').reply(200, {
+      success: true
+    });
+
+    await client.auth.signIn('user', 'pass');
+    await client.auth.signOut();
+    expect(client.auth.isSignedIn()).toBe(false);
+  });
+
+  it('should return true when using API key', () => {
+    client = new PuterClient({ token: 'test-api-key' });
+    expect(client.auth.isSignedIn()).toBe(true);
+  });
+
 });

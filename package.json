@@ -8,7 +8,7 @@
     "build": "vitest src/**",
     "test:dev": "PUTER_API_KEY='' vitest tests/*",
     "test": "PUTER_API_KEY='' vitest run tests/*",
-    "coverage": "vitest run --coverage"
+    "coverage": "PUTER_API_KEY='' vitest run --coverage"
   },
   "engines": {
     "node": ">=18.0.0"
