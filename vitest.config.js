@@ -10,9 +10,21 @@ export default defineConfig({
     },
   },
   test: {
+    environment: 'node',
+    include: ['**/*.test.js', '**/*.test.ts'],
     exclude:[
       ...configDefaults.exclude, 
-      'examples/*'
-    ]
+      'examples'
+    ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['html','text'],
+      threshold: {
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100
+      }
+    }
   },
 });

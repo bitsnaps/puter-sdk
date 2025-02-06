@@ -6,6 +6,7 @@
     <a href="https://codecov.io/gh/bitsnaps/puter-sdk" > 
         <img src="https://codecov.io/gh/bitsnaps/puter-sdk/graph/badge.svg?token=cQYUqRKDrY"/> 
     </a>
+    <a href="https://www.npmjs.com/package/puter-sdk"><img src="https://img.shields.io/npm/v/puter-sdk?color=729B1B&label="></a>
 </p>
 
 ---
