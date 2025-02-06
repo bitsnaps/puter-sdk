@@ -33,7 +33,7 @@ describe('Site Management', () => {
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
         interface: 'puter-subdomains',
         method: 'select',
-       args: {}
+        args: {}
       }));
     });
 

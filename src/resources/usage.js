@@ -6,6 +6,13 @@ export class PuterUsage {
   }
 
   /**
+   * @alias to `getDiskUsage()`
+   */
+  async df() {
+    return this.getDiskUsage();
+  }
+
+  /**
    * Get disk usage information
    * @returns {Promise<object>} Disk usage information
    */
@@ -19,6 +26,13 @@ export class PuterUsage {
       }
       throw new Error('Failed to get disk usage information');
     }
+  }
+
+  /**
+   * @alias to `getUsageInfo()`
+   */
+  async usage() {
+    return this.getUsageInfo();
   }
 
   /**
