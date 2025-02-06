@@ -79,7 +79,8 @@ describe('Subdomain Management', () => {
       expect(result).toEqual(mockResponse.result);
       expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
         interface: 'puter-subdomains',
-        method: 'select'
+        method: 'select',
+        args: {}
       }));
     });
 

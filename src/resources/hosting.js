@@ -47,11 +47,12 @@ export class PuterHosting {
    * List all hosting
    * @returns {Promise<Array>} List of hosting
    */
-  async list() {
+  async list(args = {}) {
     try {
       const response = await this.client.http.post('/drivers/call', {
         interface: INTERFACE_SUBDOMAINS,
-        method: 'select'
+        method: 'select',
+        args: args
       });
 
       return response.result || [];
