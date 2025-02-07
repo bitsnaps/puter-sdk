@@ -11,7 +11,11 @@
 
 ---
 
-The official JavaScript SDK for interacting with the **Puter Cloud Platform**. If you don't have an account you can [Signup](https://puter.com/?r=N5Y0ZYTF) from here for free (You'll get a free 1Gb from this link). This SDK provides a simple and consistent interface for working with Puter's APIs, including file management, app deployment, AI services, and more.
+**WARNING: Experimental and Potentially Hazardous Functionality**
+
+This `puter-sdk` project includes certain functionalities that are inherently dangerous and not fully tested in production environments. Operations such as creating apps, creating sites, or deleting files are experimental and may cause instability, data loss, or even crash instances if misused or if unforeseen edge cases occur. While we strive to provide reliable package, these specific features are provided "as-is" and may not have undergone rigorous testing across all possible scenarios. Developers using these functionalities must exercise extreme caution and thoroughly test them in controlled environments before deploying them to production. By using this SDK, you acknowledge that you are doing so at your own risk, and the maintainers are not responsible for any damage, loss, or instability caused by its use. Proceed with caution and ensure you have proper safeguards in place.
+
+The Unofficial JavaScript SDK for interacting with the **Puter Cloud Platform**. If you don't have an account you can [Signup](https://puter.com/?r=N5Y0ZYTF) from here for free (You'll get a free 1Gb from this link). This SDK provides a simple and consistent interface for working with Puter's APIs, including file management, app deployment, AI services, and more.
 
 ## Features
 
@@ -127,13 +131,6 @@ console.log('Directory created:', dirResult);
 ### App Management
 
 ```javascript
-// Create a new app
-const app = await puter.apps.create({
-  name: 'my-app',
-  url: 'https://my-app.com'
-});
-console.log('Created app:', app);
-
 // List all apps
 const apps = await puter.apps.list();
 console.log('Apps:', apps);
@@ -185,13 +182,6 @@ const audioStream = await puter.ai.txt2speech({
 ### Subdomain Management
 
 ```javascript
-// Create a subdomain
-const subdomain = await puter.hosting.create({
-  subdomain: 'mysite',
-  rootDir: '/my-site-files'
-});
-console.log('Created subdomain:', subdomain);
-
 // List web sites
 const sites = await puter.hosting.list();
 console.log('sites:', sites);
