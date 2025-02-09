@@ -7,8 +7,7 @@ export class PuterSites {
   }
 
   /**
-   * List all sites
-   * @returns {Promise<Array>} List of sites
+   * @alias to `hosting.list()`
    */
   async list() {
     try {

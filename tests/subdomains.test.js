@@ -36,8 +36,10 @@ describe('Subdomain Management', () => {
         interface: 'puter-subdomains',
         method: 'create',
         args: {
-          subdomain: 'mysubdomain',
-          root_dir: '/my/path'
+          object: {
+            subdomain: 'mysubdomain',
+            root_dir: '/my/path'
+          }
         }
       }));
     });

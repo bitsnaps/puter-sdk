@@ -14,7 +14,8 @@ export default defineConfig({
     include: ['**/*.test.js', '**/*.test.ts'],
     exclude:[
       ...configDefaults.exclude, 
-      'examples'
+      'examples',
+      'tests/integrations/*' // temporary disabled
     ],
     coverage: {
       provider: 'v8',

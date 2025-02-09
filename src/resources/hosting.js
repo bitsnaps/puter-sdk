@@ -25,11 +25,13 @@ export class PuterHosting {
         interface: INTERFACE_SUBDOMAINS,
         method: 'create',
         args: {
-          subdomain,
-          root_dir: rootDir
+          object: {
+            subdomain,
+            root_dir: rootDir
+          }
         }
       });
-
+          
       if (!response.success) {
         throw new Error(response.error?.message || 'Failed to create subdomain');
       }
