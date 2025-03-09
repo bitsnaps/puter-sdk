@@ -144,6 +144,13 @@ export class PuterApps {
     });
   }
 
+  /**
+   * Updates an app's URL with its subdomain
+   * @param {object} app - The app object containing name and other properties
+   * @param {string} subdomainName - The subdomain name to be used in the URL
+   * @returns {Promise<object>} Response from the update operation
+   * @throws {Error} If the update operation fails
+   */
   async updateAppWithSubdomain(app, subdomainName) {
     const response = await this.client.http.post('/drivers/call', {
       interface: INTERFACE_APPS,

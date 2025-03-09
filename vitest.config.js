@@ -1,5 +1,8 @@
 import { defineConfig, configDefaults } from 'vitest/config';
 import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default defineConfig({
   plugins: [],
@@ -11,11 +14,12 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    setupFiles: ['dotenv/config'],
     include: ['**/*.test.js', '**/*.test.ts'],
     exclude:[
       ...configDefaults.exclude, 
       'examples',
-      'tests/integrations/*' // temporary disabled
+      // 'tests/integrations/*' // temporary disabled
     ],
     coverage: {
       provider: 'v8',
