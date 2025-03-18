@@ -35,3 +35,6 @@ examples/
 
 # var envs
 .env
+
+# jsdocs
+/docs
