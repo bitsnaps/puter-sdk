@@ -2,17 +2,33 @@ import { PuterError } from '../errors.js';
 import { INTERFACE_APPS } from '../constants.js';
 import crypto from '../crypto.js';
 
+/**
+ * PuterApps class for managing applications
+ * @class
+ */
 export class PuterApps {
+
+  /**
+   * Creates an instance of PuterApps
+   * @param {object} client - The Puter client instance
+   */
   constructor(client) {
     this.client = client;
   }
 
   /**
    * List all apps
-   * @param {object} options
+   * @param {object} [options] - Options for listing apps
    * @param {string} [options.statsPeriod='all'] - Statistics period
    * @param {number} [options.iconSize=64] - Icon size
    * @returns {Promise<Array>} List of apps
+   * @throws {Error} If listing apps fails
+   * @example
+   * // Get all apps
+   * const apps = await client.apps.list();
+   * 
+   * // Get apps with custom icon size
+   * const apps = await client.apps.list({ iconSize: 128 });
    */
   async list(options = {}) {
     const { statsPeriod = 'all', iconSize = 64 } = options;
@@ -79,6 +95,17 @@ export class PuterApps {
     }
   }
 
+  /**
+   * Creates a new app record in the system
+   * @param {object} options - The options for creating the app record
+   * @param {string} options.name - The name of the app
+   * @param {string} options.url - The URL where the app is hosted
+   * @param {string} [options.description=''] - Optional description of the app
+   * @returns {Promise<object>} The created app record
+   * @throws {PuterError} If the server returns an error
+   * @throws {Error} If the app record creation fails
+   * @private
+   */
   async createAppRecord(options) {
     const { name, url, description = '' } = options;
     
@@ -221,12 +248,29 @@ export class PuterApps {
     }
   }
 
-  /**
+/**
    * Update an existing app
    * @param {string} name - App name
-   * @param {object} options
-   * @param {string} [options.directory] - Directory path
+   * @param {object} options - Options for updating the app
+   * @param {string} [options.directory] - Local directory path containing files to upload to the app
+   * @param {string} [options.description] - New description for the app
+   * @param {string} [options.url] - New URL for the app
+   * @param {boolean} [options.maximizeOnStart] - Whether the app should maximize on start
+   * @param {boolean} [options.background] - Whether the app should run in the background
    * @returns {Promise<object>} Updated app details
+   * @throws {PuterError} If the server returns an error
+   * @throws {Error} If the app update fails
+   * @example
+   * // Update app files from a local directory
+   * const updatedApp = await client.apps.update('myApp', { 
+   *   directory: '/path/to/app/files' 
+   * });
+   * 
+   * // Update app metadata
+   * const updatedApp = await client.apps.update('myApp', {
+   *   description: 'Updated app description',
+   *   maximizeOnStart: true
+   * });
    */
   async update(name, options = {}) {
     if (!name) {
