@@ -19,7 +19,7 @@ export default defineConfig({
     exclude:[
       ...configDefaults.exclude, 
       'examples',
-      // 'tests/integrations/*' // temporary disabled
+      'tests/integration/*' // temporary disabled
     ],
     coverage: {
       provider: 'v8',

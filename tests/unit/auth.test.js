@@ -1,8 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import PuterClient from '../src/index';
-import { mockAxios } from './mocks/axios';
-import { API_BASE_URL } from '../src/constants';
-import { PuterError } from '../src/errors';
+import PuterClient from '../../src/index';
+import { mockAxios } from '../mocks/axios';
+import { API_BASE_URL } from '../../src/constants';
+import { PuterError } from '../../src/errors';
 
 describe('Authentication', () => {
   let client;

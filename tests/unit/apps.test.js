@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import PuterClient from '../src/index';
-import { mockAxios } from './mocks/axios';
-import { API_BASE_URL } from '../src/constants';
+import PuterClient from '../../src/index';
+import { mockAxios } from '../mocks/axios';
+import { API_BASE_URL } from '../../src/constants';
 
 describe('App Management', () => {
   let client;

@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from 'vitest';
-import PuterClient from '../src/index';
-import { mockAxios } from './mocks/axios';
+import PuterClient from '../../src/index';
+import { mockAxios } from '../mocks/axios';
 
 describe('Site Management', () => {
   let client;

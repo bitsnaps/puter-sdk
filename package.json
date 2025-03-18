@@ -7,8 +7,9 @@
   "scripts": {
     "build": "vitest src/**",
     "test:dev": "PUTER_API_KEY='' vitest tests/*",
-    "test": "PUTER_API_KEY='' vitest run tests/*",
+    "test": "PUTER_API_KEY='' vitest run tests/**/*.test.js",
     "test:integration": "vitest run --config vitest.integration.config.js",
+    "test:all": "PUTER_API_KEY='' vitest run tests/*",
     "coverage": "PUTER_API_KEY='' vitest run --coverage",
     "docs": "jsdoc -c jsdoc.json",
     "docs:dev": "pnpm run docs && open docs/index.html"

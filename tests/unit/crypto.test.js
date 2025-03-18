@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import crypto from '../src/crypto.js';
+import crypto from '../../src/crypto.js';
 
 describe('Crypto Polyfill', () => {
 
