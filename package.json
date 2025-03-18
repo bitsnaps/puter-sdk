@@ -1,6 +1,6 @@
 {
   "name": "puter-sdk",
-  "version": "1.2.3",
+  "version": "1.2.2",
   "type": "module",
   "description": "The Unofficial Puter SDK library for Puter cloud platform",
   "main": "index.js",
@@ -8,7 +8,10 @@
     "build": "vitest src/**",
     "test:dev": "PUTER_API_KEY='' vitest tests/*",
     "test": "PUTER_API_KEY='' vitest run tests/*",
-    "coverage": "PUTER_API_KEY='' vitest run --coverage"
+    "test:integration": "vitest run --config vitest.integration.config.js",
+    "coverage": "PUTER_API_KEY='' vitest run --coverage",
+    "docs": "jsdoc -c jsdoc.json",
+    "docs:dev": "pnpm run docs && open docs/index.html"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -29,6 +32,7 @@
     "@vitest/coverage-v8": "3.0.4",
     "@vitest/runner": "^3.0.5",
     "axios-mock-adapter": "^2.1.0",
+    "jsdoc": "^4.0.4",
     "vitest": "^3.0.4"
   },
   "repository": {
