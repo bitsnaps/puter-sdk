@@ -1,17 +1,34 @@
 import { PuterError } from '../errors.js';
 
+/**
+ * PuterAuth class for handling authentication with the Puter platform
+ * @class
+ */
 export class PuterAuth {
+
+  /**
+   * Creates an instance of PuterAuth
+   * @param {object} client - The Puter client instance
+   */
   constructor(client) {
     this.client = client;
   }
 
   /**
    * Authenticate with Puter using username and password
-   * @param {string} username 
-   * @param {string} password 
-   * @param {string} [otp] Optional OTP for 2FA
-   * @returns {Promise<object>} Authentication result
-   * @throws {Error} If authentication fails
+   * @param {string} username - The user's username or email
+   * @param {string} password - The user's password
+   * @param {string} [otp=null] - Optional OTP code for two-factor authentication
+   * @returns {Promise<object>} Authentication result containing token and user information
+   * @throws {Error} If authentication fails due to invalid credentials
+   * @throws {Error} If 2FA is required but no OTP is provided
+   * @throws {PuterError} If the server returns an error
+   * @example
+   * // Basic authentication
+   * const auth = await client.auth.signIn('username', 'password');
+   * 
+   * // Authentication with 2FA
+   * const auth = await client.auth.signIn('username', 'password', '123456');
    */
   async signIn(username, password, otp = null) {
     if (this.client.token) {
@@ -69,8 +86,12 @@ export class PuterAuth {
   }
 
   /**
-   * Check if user is signed in
-   * @returns {boolean} Returns true if signed in, false otherwise
+   * Check if the user is currently signed in
+   * @returns {boolean} Returns true if the user is signed in, false otherwise
+   * @example
+   * if (client.auth.isSignedIn()) {
+   *   console.log('User is authenticated');
+   * }
    */
   isSignedIn() {
     // Check if we have a token and it's not expired
@@ -82,8 +103,13 @@ export class PuterAuth {
   }
 
   /**
-   * Logout the current user
+   * Sign out the current user by removing the authentication token
    * @returns {void}
+   * @throws {PuterError} If the server returns an error
+   * @throws {Error} If the sign out process fails
+   * @example
+   * // Sign out the current user
+   * client.auth.signOut();
    */
   signOut() {
     try {
@@ -100,8 +126,14 @@ export class PuterAuth {
   }
     
   /**
-   * Get current authenticated user information
-   * @returns {Promise<object>} User information
+   * Get information about the currently authenticated user
+   * @returns {Promise<object>} User information including username, email, and profile details
+   * @throws {PuterError} If the server returns an error
+   * @throws {Error} If retrieving user information fails
+   * @example
+   * // Get current user information
+   * const user = await client.auth.getUser();
+   * console.log(`Logged in as: ${user.username}`);
    */
   async getUser() {
     try {
