@@ -14,22 +14,33 @@ export class PuterAI {
   constructor(client) {
     this.client = client;
   }
-
   /**
    * Get chat completion from AI
    * @param {Array<object>} messages - Array of chat messages
    * @param {string} messages[].role - Role of the message sender (e.g., 'user', 'assistant', 'system')
    * @param {string} messages[].content - Content of the message
+   * @param {object} [options] - Additional options for the chat completion
+   * @param {string} [options.model] - The model to use for completion
+   * @param {number} [options.temperature] - Controls randomness (0-1, lower is more deterministic)
+   * @param {number} [options.max_tokens] - Maximum number of tokens to generate
    * @returns {Promise<object>} Chat completion result containing the AI response
    * @throws {Error} If messages are invalid or API request fails
    * @example
-   * // Get a chat completion
+   * // Get a chat completion with default settings
    * const result = await client.ai.chat([
    *   { role: 'system', content: 'You are a helpful assistant.' },
    *   { role: 'user', content: 'Hello, how are you?' }
    * ]);
+   * 
+   * // Get a chat completion with custom temperature and max_tokens
+   * const result = await client.ai.chat(
+   *   [
+   *     { role: 'user', content: 'Write a short poem' }
+   *   ],
+   *   { temperature: 0.7, max_tokens: 100 }
+   * );
    */
-  async chat(messages) {
+  async chat(messages, options = {}) {
     if (!Array.isArray(messages) || messages.length === 0) {
       throw new Error('At least one message is required');
     }
@@ -41,13 +52,20 @@ export class PuterAI {
       }
     });
 
+    const { model, temperature, max_tokens } = options;
+
     try {
       const response = await this.client.http.post('/drivers/call', {
         interface: INTERFACE_CHAT_COMPLETION,
         driver: 'openai-completion',
         test_mode: false,
         method: 'complete',
-        args: { messages }
+        args: { 
+          messages,
+          ...(model && { model }),
+          ...(temperature !== undefined && { temperature }),
+          ...(max_tokens !== undefined && { max_tokens })
+        }
       });
 
       if (!response.success) {
@@ -68,19 +86,31 @@ export class PuterAI {
    * @param {Array<object>} messages - Array of chat messages
    * @param {string} messages[].role - Role of the message sender (e.g., 'user', 'assistant', 'system')
    * @param {string} messages[].content - Content of the message
+   * @param {object} [options] - Additional options for the chat completion
+   * @param {string} [options.model] - The model to use for completion
+   * @param {number} [options.temperature] - Controls randomness (0-1, lower is more deterministic)
+   * @param {number} [options.max_tokens] - Maximum number of tokens to generate
    * @returns {Promise<ReadableStream>} Stream of chat completion chunks
    * @throws {Error} If messages are invalid or API request fails
    * @example
-   * // Get a streaming chat completion
+   * // Get a streaming chat completion with default settings
    * const stream = await client.ai.chatCompleteStream([
    *   { role: 'user', content: 'Write a poem about clouds' }
    * ]);
+   * 
+   * // Get a streaming chat completion with custom settings
+   * const stream = await client.ai.chatCompleteStream(
+   *   [{ role: 'user', content: 'Explain quantum physics' }],
+   *   { temperature: 0.5, max_tokens: 500 }
+   * );
    * // Process the stream...
    */
-  async chatCompleteStream(messages) {
+  async chatCompleteStream(messages, options = {}) {
     if (!Array.isArray(messages) || messages.length === 0) {
       throw new Error('At least one message is required');
     }
+
+    const { model, temperature, max_tokens } = options;
 
     try {
       const response = await this.client.http.post('/drivers/call', {
@@ -88,7 +118,13 @@ export class PuterAI {
         driver: 'openai-completion',
         test_mode: false,
         method: 'complete_stream',
-        args: { messages }
+        args: { 
+          messages,
+          stream: true,
+          ...(model && { model }),
+          ...(temperature !== undefined && { temperature }),
+          ...(max_tokens !== undefined && { max_tokens })
+        }
       }, {
         responseType: 'stream'
       });

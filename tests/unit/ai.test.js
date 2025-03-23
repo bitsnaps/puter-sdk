@@ -114,6 +114,90 @@ describe('AI Operations', () => {
         text: 'Invalid format'
       }])).rejects.toThrow('Invalid message format');
     });
+
+    it('should get chat completion with temperature and max_tokens', async () => {
+      const mockResponse = {
+        success: true,
+        result: {
+          message: {
+            role: 'assistant',
+            content: 'This is a controlled response...',
+          },
+          usage: {
+            input_tokens: 20,
+            output_tokens: 50
+          }
+        }
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.chat([{
+        role: 'user',
+        content: 'Write something creative'
+      }], {
+        temperature: 0.7,
+        max_tokens: 100
+      });
+
+      expect(result).toEqual(mockResponse.result);
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        driver: 'openai-completion',
+        test_mode: false,
+        method: 'complete',
+        args: {
+          messages: [{
+            role: 'user',
+            content: 'Write something creative'
+          }],
+          temperature: 0.7,
+          max_tokens: 100
+        }
+      }));
+    });
+
+    it('should get chat completion with model parameter', async () => {
+      const mockResponse = {
+        success: true,
+        result: {
+          message: {
+            role: 'assistant',
+            content: 'Response from specific model...',
+          },
+          usage: {
+            input_tokens: 15,
+            output_tokens: 40
+          }
+        }
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.chat([{
+        role: 'user',
+        content: 'Hello'
+      }], {
+        model: 'gpt-4',
+        temperature: 0.5
+      });
+
+      expect(result).toEqual(mockResponse.result);
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        driver: 'openai-completion',
+        test_mode: false,
+        method: 'complete',
+        args: {
+          messages: [{
+            role: 'user',
+            content: 'Hello'
+          }],
+          model: 'gpt-4',
+          temperature: 0.5
+        }
+      }));
+    });
   });
 
   describe('Streaming Chat Completion', () => {
@@ -158,6 +242,65 @@ describe('AI Operations', () => {
         // Wait for stream to complete
         await new Promise(resolve => setTimeout(resolve, 150));
         expect(dataReceived).toBe(true);      
+    });
+
+    it('should stream chat completion with temperature and max_tokens', async () => {
+      const mockResponse = {
+        success: true,
+        result: {
+          message: {
+            role: 'assistant',
+            content: 'Streaming response with parameters...',
+          },
+          usage: {
+            input_tokens: 20,
+            output_tokens: 60
+          }
+        }
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, createMockStream(mockResponse));
+
+      const stream = await client.ai.chatCompleteStream([{
+        role: 'user',
+        content: 'Write a short story'
+      }], {
+        temperature: 0.8,
+        max_tokens: 200
+      });
+      
+      expect(stream).toBeDefined();
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        driver: 'openai-completion',
+        test_mode: false,
+        method: 'complete_stream',
+        args: {
+          messages: [{
+            role: 'user',
+            content: 'Write a short story'
+          }],
+          stream: true,
+          temperature: 0.8,
+          max_tokens: 200
+        }
+      }));
+
+      // Verify stream properties
+      expect(typeof stream.on).toBe('function');
+      expect(typeof stream.pipe).toBe('function');
+
+      // Test stream events
+      let dataReceived = false;
+      stream.on('data', (chunk) => {
+        const data = JSON.parse(chunk.toString());
+        expect(data.success).toBe(true);
+        dataReceived = true;
+      });
+      
+      // Wait for stream to complete
+      await new Promise(resolve => setTimeout(resolve, 150));
+      expect(dataReceived).toBe(true);      
     });
   });
 
