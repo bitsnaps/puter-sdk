@@ -1,13 +1,29 @@
 import { PuterError } from '../errors.js';
 import { INTERFACE_SUBDOMAINS } from '../constants.js';
 
+/**
+ * PuterSites class for managing website deployments
+ * @class
+ */
 export class PuterSites {
+  /**
+   * Creates an instance of PuterSites
+   * @param {object} client - The Puter client instance
+   */
   constructor(client) {
     this.client = client;
   }
 
   /**
+   * List all sites for the current user
    * @alias to `hosting.list()`
+   * @returns {Promise<Array>} List of sites with their details
+   * @throws {PuterError} If the server returns an error
+   * @throws {Error} If the listing operation fails
+   * @example
+   * // List all sites
+   * const sites = await client.sites.list();
+   * console.log(`You have ${sites.length} sites`);
    */
   async list() {
     try {
@@ -22,9 +38,16 @@ export class PuterSites {
   }
 
   /**
-   * Get site information
-   * @param {string} siteId - Site ID
-   * @returns {Promise<object>} Site information
+   * Get detailed information about a specific site
+   * @param {string} siteId - Site ID (UID)
+   * @returns {Promise<object>} Site information including URL, status, and configuration
+   * @throws {Error} If siteId is missing
+   * @throws {PuterError} If the server returns an error
+   * @throws {Error} If retrieving site information fails
+   * @example
+   * // Get information about a specific site
+   * const site = await client.sites.get('site-uid-123');
+   * console.log(`Site URL: ${site.url}`);
    */
   async get(siteId) {
     if (!siteId) {
@@ -52,11 +75,21 @@ export class PuterSites {
   }
 
   /**
-   * Create a new site
-   * @param {object} options
-   * @param {string} options.name - Site name
-   * @param {string} options.directory - Directory path
-   * @returns {Promise<object>} Created site details
+   * Create a new site with a custom subdomain
+   * @param {object} options - Options for creating a site
+   * @param {string} options.name - Site name (will be used as subdomain)
+   * @param {string} options.directory - Directory path containing website files
+   * @returns {Promise<object>} Created site details including URL and status
+   * @throws {Error} If name or directory is missing
+   * @throws {Error} If subdomain already exists
+   * @throws {PuterError} If the server returns an error
+   * @example
+   * // Create a new site
+   * const site = await client.sites.create({
+   *   name: 'my-portfolio',
+   *   directory: '/Projects/portfolio/build'
+   * });
+   * console.log(`Site created at: ${site.url}`);
    */
   async create(options) {
     const { name, directory } = options;
@@ -86,9 +119,18 @@ export class PuterSites {
   }
 
   /**
-   * Delete a site
-   * @param {string} siteId - Site ID to delete
-   * @returns {Promise<boolean>} True if successful
+   * Delete a site and its associated subdomain
+   * @param {string} siteId - Site ID (UID) to delete
+   * @returns {Promise<boolean>} True if deletion was successful
+   * @throws {Error} If siteId is missing
+   * @throws {PuterError} If the server returns an error
+   * @throws {Error} If the deletion operation fails
+   * @example
+   * // Delete a site
+   * const result = await client.sites.delete('site-uid-123');
+   * if (result) {
+   *   console.log('Site deleted successfully');
+   * }
    */
   async delete(siteId) {
     if (!siteId) {

@@ -10,8 +10,27 @@ import { PuterAI } from './resources/ai.js';
 import { PuterError } from './errors.js';
 import config from './config.js';
 
+/**
+ * Main client class for interacting with the Puter API
+ * @class
+ */
 export default class PuterClient {
   
+  /**
+   * Creates a new Puter client instance
+   * @param {object} [clientConfig={}] - Configuration options
+   * @param {string} [clientConfig.baseURL] - Base URL for API requests (defaults to config.apiBaseUrl)
+   * @param {string} [clientConfig.token] - Authentication token (defaults to config.apiKey)
+   * @example
+   * // Create client with default configuration
+   * const puter = new PuterClient();
+   * 
+   * // Create client with custom configuration
+   * const puter = new PuterClient({
+   *   baseURL: 'https://api.puter.com',
+   *   token: 'your-api-token'
+   * });
+   */
   constructor(clientConfig = {}) {
     this.baseURL = clientConfig.baseURL || config.apiBaseUrl;
     this.token = clientConfig.token || config.apiKey;
@@ -67,7 +86,8 @@ export default class PuterClient {
   
   /**
    * Get default headers for API requests
-   * @returns {object} Default headers
+   * @returns {object} Default headers object with standard HTTP headers
+   * @private
    */
   getDefaultHeaders() {
     return {
@@ -85,6 +105,10 @@ export default class PuterClient {
   /**
    * Update the authentication token
    * @param {string} token - New authentication token
+   * @returns {void}
+   * @example
+   * // Update the token after authentication
+   * puter.setToken('new-auth-token');
    */
   setToken(token) {
     this.token = token;
@@ -92,9 +116,16 @@ export default class PuterClient {
   }
 
   /**
-   * Check if 2FA is required for the user
-   * @param {string} username
-   * @returns {Promise<boolean>}
+   * Check if two-factor authentication is required for a user
+   * @param {string} username - Username to check
+   * @returns {Promise<boolean>} True if 2FA is required, false otherwise
+   * @throws {PuterError} If the server returns an error
+   * @example
+   * // Check if a user requires 2FA
+   * const requires2FA = await puter.isTwoFactorRequired('username');
+   * if (requires2FA) {
+   *   console.log('This account requires 2FA');
+   * }
    */
   async isTwoFactorRequired(username) {
     try {
@@ -107,5 +138,4 @@ export default class PuterClient {
       return false;
     }
   }
-
 }

@@ -1,19 +1,37 @@
+/**
+ * PuterFileSystem class for file system operations
+ * @class
+ */
 export class PuterFileSystem {
+  /**
+   * Creates an instance of PuterFileSystem
+   * @param {object} client - The Puter client instance
+   */
   constructor(client) {
     this.client = client;
   }
 
   /**
-   * @alias to `readdir()` function
+   * List objects in a directory (alias to readdir)
+   * @param {string} path - Path to the directory
+   * @returns {Promise<Array>} Array of directory contents
+   * @throws {Error} If the directory cannot be read
+   * @example
+   * // List files in a directory
+   * const files = await client.fs.list('/Documents');
    */
   async list(path) {
     return this.readdir(path)
   }
 
   /**
-   * List objects in the path directory
-   * @param {*} path 
-   * @returns list of objects
+   * List objects in a directory
+   * @param {string} path - Path to the directory
+   * @returns {Promise<Array>} Array of directory contents with file metadata
+   * @throws {Error} If the directory cannot be read
+   * @example
+   * // Read directory contents
+   * const files = await client.fs.readdir('/Documents');
    */
   async readdir(path) {
     const response = await this.client.http.post('/readdir', { path });
@@ -22,8 +40,21 @@ export class PuterFileSystem {
 
   /**
    * Create a directory
-   * @param {object} options containing the path of the directory
-   * @returns result of the operation
+   * @param {object} options - Directory creation options
+   * @param {string} options.path - Path of the directory to create
+   * @param {boolean} [options.overwrite=false] - Whether to overwrite existing directory
+   * @param {boolean} [options.dedupeName=true] - Whether to deduplicate directory name if it exists
+   * @param {boolean} [options.createParents=true] - Whether to create parent directories if they don't exist
+   * @returns {Promise<object>} Result of the directory creation operation
+   * @throws {Error} If the directory cannot be created
+   * @example
+   * // Create a directory
+   * const result = await client.fs.mkdir({
+   *   path: '/Documents/Projects',
+   *   overwrite: false,
+   *   dedupeName: true,
+   *   createParents: true
+   * });
    */
   async mkdir(options) {
     const { path, overwrite = false, dedupeName = true, createParents = true } = options;
@@ -44,7 +75,12 @@ export class PuterFileSystem {
   /**
    * Get information about a file or directory
    * @param {string} path - Path to the file/directory
-   * @returns {object} File/directory information
+   * @returns {Promise<object>} File/directory metadata including size, type, and timestamps
+   * @throws {Error} If the file/directory information cannot be retrieved
+   * @example
+   * // Get file information
+   * const fileInfo = await client.fs.getInfo('/Documents/report.pdf');
+   * console.log(`File size: ${fileInfo.size} bytes`);
    */
   async getInfo(path) {
     const response = await this.client.http.post('/stat', { path });
@@ -55,7 +91,11 @@ export class PuterFileSystem {
    * Rename a file or directory
    * @param {string} oldPath - Current path of the file/directory
    * @param {string} newPath - New path for the file/directory
-   * @returns {object} Result of the rename operation
+   * @returns {Promise<object>} Result of the rename operation
+   * @throws {Error} If the file/directory cannot be renamed
+   * @example
+   * // Rename a file
+   * const result = await client.fs.rename('/Documents/old.txt', '/Documents/new.txt');
    */
   async rename(oldPath, newPath) {
     // Get file UID
@@ -73,10 +113,19 @@ export class PuterFileSystem {
   /**
    * Upload a file to the specified path
    * @param {object} options - Upload options
-   * @param {File} options.file - The file to upload
-   * @param {string} options.path - Destination path
-   * @param {string} options.name - Name of the file
-   * @returns {object} Result of the upload operation
+   * @param {File|Blob} options.file - The file to upload
+   * @param {string} options.path - Destination directory path
+   * @param {string} options.name - Name to give the uploaded file
+   * @returns {Promise<object>} Result of the upload operation with file metadata
+   * @throws {Error} If the file cannot be uploaded
+   * @example
+   * // Upload a file
+   * const fileInput = document.querySelector('input[type="file"]');
+   * const result = await client.fs.upload({
+   *   file: fileInput.files[0],
+   *   path: '/Documents',
+   *   name: 'uploaded-file.pdf'
+   * });
    */
   async upload({ file, path, name }) {
     const formData = new FormData();
@@ -99,7 +148,11 @@ export class PuterFileSystem {
   /**
    * Delete a file or directory
    * @param {string} path - Path to the file/directory to delete
-   * @returns {object} Result of the delete operation
+   * @returns {Promise<object>} Result of the delete operation
+   * @throws {Error} If the file/directory cannot be deleted
+   * @example
+   * // Delete a file
+   * const result = await client.fs.delete('/Documents/unwanted-file.txt');
    */
   async delete(path) {
     const response = await this.client.http.post('/delete', { path });
