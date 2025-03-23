@@ -155,12 +155,46 @@ console.log(`result of delete operation: ${result}`);
 ### AI Services
 
 ```javascript
-// Chat completion
+// Basic chat completion
 const chatResponse = await puter.ai.chat([{
   role: 'user',
   content: 'What is Puter?'
 }]);
 console.log('AI response:', chatResponse.message.content);
+
+// Chat completion with parameters
+const customResponse = await puter.ai.chat(
+  [{
+    role: 'user',
+    content: 'Write a short poem about technology'
+  }],
+  {
+    model: 'gpt-4o-mini', // Specify model
+    temperature: 0.7, // Control randomness
+    max_tokens: 150 // Limit response length
+  }
+);
+console.log('Custom AI response:', customResponse.message.content);
+
+// Streaming chat completion
+const stream = await puter.ai.chatCompleteStream(
+  [{
+    role: 'user',
+    content: 'Explain quantum computing'
+  }],
+  {
+    temperature: 0.5,
+    max_tokens: 500
+  }
+);
+
+// Process the stream
+stream.on('data', (chunk) => {
+  const data = JSON.parse(chunk.toString());
+  if (data.success && data.result.message) {
+    process.stdout.write(data.result.message.content);
+  }
+});
 
 // Image generation
 const image = await puter.ai.txt2img({
@@ -178,7 +212,6 @@ const audioStream = await puter.ai.txt2speech({
   voice: 'voice-1'
 });
 // Handle the audio stream...
-```
 
 ### Subdomain Management
 
