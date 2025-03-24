@@ -176,6 +176,20 @@ const customResponse = await puter.ai.chat(
 );
 console.log('Custom AI response:', customResponse.message.content);
 
+// List available AI models
+const models = await puter.ai.listModels();
+console.log('Available models by provider:', models);
+// Example output: { 'openai-completion': ['gpt-4o', 'gpt-4o-mini', ...], ... }
+
+// List models for a specific provider
+const openaiModels = await puter.ai.listModels('openai-completion');
+console.log('OpenAI models:', openaiModels);
+
+// List all available AI model providers
+const providers = await puter.ai.listModelProviders();
+console.log('Available providers:', providers);
+// Example output: ['openai-completion', 'anthropic', 'openrouter', ...]
+
 // Streaming chat completion
 const stream = await puter.ai.chatCompleteStream(
   [{
@@ -212,6 +226,8 @@ const audioStream = await puter.ai.txt2speech({
   voice: 'voice-1'
 });
 // Handle the audio stream...
+```
+
 
 ### Subdomain Management
 

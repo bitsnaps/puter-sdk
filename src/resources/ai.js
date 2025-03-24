@@ -248,6 +248,95 @@ export class PuterAI {
     }
   }
 
+
+  /**
+   * List all available AI models, optionally filtered by provider
+   * @param {string} [provider] - The provider to filter the models returned
+   * @returns {Promise<Object>} Object containing lists of available models by provider
+   * @throws {Error} If the request fails
+   * @example
+   * // Get all available models
+   * const allModels = await client.ai.listModels();
+   * console.log(allModels);
+   * 
+   * // Get models from a specific provider
+   * const openaiModels = await client.ai.listModels('openai');
+   * console.log(openaiModels);
+   */
+  async listModels(provider) {
+    try {
+      const response = await this.client.http.post('/drivers/call', {
+        interface: INTERFACE_CHAT_COMPLETION,
+        service: 'ai-chat',
+        method: 'models',
+        args: {}
+      });
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Failed to list models');
+      }
+
+      const modelsByProvider = {};
+
+      if (!response.result || !Array.isArray(response.result)) {
+        return modelsByProvider;
+      }
+
+      response.result.forEach(item => {
+        if (!item.provider || !item.id) return;
+        if (provider && item.provider !== provider) return;
+        if (!modelsByProvider[item.provider]) modelsByProvider[item.provider] = [];
+        modelsByProvider[item.provider].push(item.id);
+      });
+
+      return modelsByProvider;
+    } catch (error) {
+      if (error.response?.data?.error) {
+        throw new PuterError(error.response.data.error);
+      }
+      throw new Error(error.message || 'Failed to list models');
+    }
+  }
+
+  /**
+   * List all available AI model providers
+   * @returns {Promise<Array<string>>} Array of provider names
+   * @throws {Error} If the request fails
+   * @example
+   * // Get all available model providers
+   * const providers = await client.ai.listModelProviders();
+   * console.log(providers); // ['openai', 'anthropic', ...]
+   */
+  async listModelProviders() {
+    try {
+      const response = await this.client.http.post('/drivers/call', {
+        interface: INTERFACE_CHAT_COMPLETION,
+        service: 'ai-chat',
+        method: 'models',
+        args: {}
+      });
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Failed to list model providers');
+      }
+
+      if (!response.result || !Array.isArray(response.result)) {
+        return [];
+      }
+
+      const providers = new Set();
+      response.result.forEach(item => {
+        if (item.provider) providers.add(item.provider);
+      });
+
+      return Array.from(providers);
+    } catch (error) {
+      if (error.response?.data?.error) {
+        throw new PuterError(error.response.data.error);
+      }
+      throw new Error(error.message || 'Failed to list model providers');
+    }
+  }
   /**
    * Synthesize speech from text
    * @param {object} options - Options for speech synthesis

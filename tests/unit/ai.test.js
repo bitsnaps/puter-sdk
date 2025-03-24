@@ -438,4 +438,118 @@ describe('AI Operations', () => {
       })).rejects.toThrow(errorMessage);
     });
   });
+
+  describe('AI Models and Providers', () => {
+    it('should list available AI models', async () => {
+      const mockResponse = {
+        success: true,
+        result: [
+          { id: 'gpt-4o', provider: 'openai-completion', cost: { currency: 'usd-cents', tokens: 1000000, input: 250, output: 500 } },
+          { id: 'gpt-4o-mini', provider: 'openai-completion', cost: { currency: 'usd-cents', tokens: 1000000, input: 15, output: 30 } },
+          { id: 'claude-3-opus', provider: 'anthropic', cost: { currency: 'usd-cents', tokens: 1000000, input: 150, output: 750 } }
+        ]
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.listModels();
+      
+      expect(result).toEqual({
+        'openai-completion': ['gpt-4o', 'gpt-4o-mini'],
+        'anthropic': ['claude-3-opus']
+      });
+      
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        service: 'ai-chat',
+        method: 'models',
+        args: {}
+      }));
+    });
+
+    it('should filter models by provider', async () => {
+      const mockResponse = {
+        success: true,
+        result: [
+          { id: 'gpt-4o', provider: 'openai-completion', cost: { currency: 'usd-cents', tokens: 1000000, input: 250, output: 500 } },
+          { id: 'gpt-4o-mini', provider: 'openai-completion', cost: { currency: 'usd-cents', tokens: 1000000, input: 15, output: 30 } },
+          { id: 'claude-3-opus', provider: 'anthropic', cost: { currency: 'usd-cents', tokens: 1000000, input: 150, output: 750 } }
+        ]
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.listModels('openai-completion');
+      
+      expect(result).toEqual({
+        'openai-completion': ['gpt-4o', 'gpt-4o-mini']
+      });
+    });
+
+    it('should handle empty model list', async () => {
+      const mockResponse = {
+        success: true,
+        result: []
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.listModels();
+      expect(result).toEqual({});
+    });
+
+    it('should list available AI model providers', async () => {
+      const mockResponse = {
+        success: true,
+        result: [
+          { id: 'gpt-4o', provider: 'openai-completion' },
+          { id: 'gpt-4o-mini', provider: 'openai-completion' },
+          { id: 'claude-3-opus', provider: 'anthropic' },
+          { id: 'llama-3', provider: 'meta' }
+        ]
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.listModelProviders();
+      
+      // Set is used internally, so order might vary - check for array contents
+      expect(result).toHaveLength(3);
+      expect(result).toContain('openai-completion');
+      expect(result).toContain('anthropic');
+      expect(result).toContain('meta');
+      
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        service: 'ai-chat',
+        method: 'models',
+        args: {}
+      }));
+    });
+
+    it('should handle errors when listing models', async () => {
+      mockAxios.onPost('/drivers/call').reply(500, {
+        error: {
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'AI service unavailable'
+        }
+      });
+
+      await expect(client.ai.listModels())
+        .rejects.toThrow('AI service unavailable');
+    });
+
+    it('should handle errors when listing providers', async () => {
+      mockAxios.onPost('/drivers/call').reply(500, {
+        error: {
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'AI service unavailable'
+        }
+      });
+
+      await expect(client.ai.listModelProviders())
+        .rejects.toThrow('AI service unavailable');
+    });
+  });
+  
 });
