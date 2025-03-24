@@ -8,7 +8,12 @@
   "opts": {
     "destination": "./docs/",
     "recurse": true,
-    "readme": "README.md"
+    "readme": "README.md",
+    "template": "node_modules/clean-jsdoc-theme",
+    "theme_opts": {
+      "default_theme": "light",
+      "homepageTitle": "Puter SDK Documentation"
+    }
   },
   "templates": {
     "cleverLinks": false,
