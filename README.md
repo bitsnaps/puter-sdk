@@ -162,6 +162,14 @@ const chatResponse = await puter.ai.chat([{
 }]);
 console.log('AI response:', chatResponse.message.content);
 
+// Chat completion with a simple string prompt
+const simpleResponse = await puter.ai.chat('Tell me about cloud computing');
+console.log('Simple response:', simpleResponse.message.content);
+
+// Chat completion in test mode
+const testResponse = await puter.ai.chat('Generate a test response', true);
+console.log('Test mode response:', testResponse.message.content);
+
 // Chat completion with parameters
 const customResponse = await puter.ai.chat(
   [{

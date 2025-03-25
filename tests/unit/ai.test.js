@@ -552,4 +552,150 @@ describe('AI Operations', () => {
     });
   });
   
+  describe('Chat with Test Mode', () => {
+    it('should accept a string prompt and set test_mode to false by default', async () => {
+      const mockResponse = {
+        success: true,
+        result: {
+          message: {
+            role: 'assistant',
+            content: 'Response to string prompt',
+          },
+          usage: {
+            input_tokens: 10,
+            output_tokens: 30
+          }
+        }
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.chat('Tell me a joke');
+
+      expect(result).toEqual(mockResponse.result);
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        driver: 'openai-completion',
+        test_mode: false,
+        method: 'complete',
+        args: {
+          messages: [{
+            role: 'user',
+            content: 'Tell me a joke'
+          }]
+        }
+      }));
+    });
+
+    it('should accept a string prompt with test_mode set to true', async () => {
+      const mockResponse = {
+        success: true,
+        result: {
+          message: {
+            role: 'assistant',
+            content: 'Test mode response',
+          },
+          usage: {
+            input_tokens: 10,
+            output_tokens: 20
+          }
+        }
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.chat('Tell me a joke', true);
+
+      expect(result).toEqual(mockResponse.result);
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        driver: 'openai-completion',
+        test_mode: true,
+        method: 'complete',
+        args: {
+          messages: [{
+            role: 'user',
+            content: 'Tell me a joke'
+          }]
+        }
+      }));
+    });
+
+    it('should accept a string prompt with test_mode and options', async () => {
+      const mockResponse = {
+        success: true,
+        result: {
+          message: {
+            role: 'assistant',
+            content: 'Test mode response with options',
+          },
+          usage: {
+            input_tokens: 10,
+            output_tokens: 25
+          }
+        }
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.chat('Tell me a joke', true, {
+        temperature: 0.8,
+        max_tokens: 150
+      });
+
+      expect(result).toEqual(mockResponse.result);
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        driver: 'openai-completion',
+        test_mode: true,
+        method: 'complete',
+        args: {
+          messages: [{
+            role: 'user',
+            content: 'Tell me a joke'
+          }],
+          temperature: 0.8,
+          max_tokens: 150
+        }
+      }));
+    });
+
+    it('should handle message array with test_mode set to true', async () => {
+      const mockResponse = {
+        success: true,
+        result: {
+          message: {
+            role: 'assistant',
+            content: 'Test mode response to message array',
+          },
+          usage: {
+            input_tokens: 15,
+            output_tokens: 35
+          }
+        }
+      };
+
+      mockAxios.onPost('/drivers/call').reply(200, mockResponse);
+
+      const result = await client.ai.chat([
+        { role: 'system', content: 'You are a helpful assistant' },
+        { role: 'user', content: 'Tell me a joke' }
+      ], true);
+
+      expect(result).toEqual(mockResponse.result);
+      expect(mockAxios.history.post[0].data).toEqual(JSON.stringify({
+        interface: 'puter-chat-completion',
+        driver: 'openai-completion',
+        test_mode: true,
+        method: 'complete',
+        args: {
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant' },
+            { role: 'user', content: 'Tell me a joke' }
+          ]
+        }
+      }));
+    });
+  });
+  
 });

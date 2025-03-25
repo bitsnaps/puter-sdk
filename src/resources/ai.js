@@ -14,11 +14,11 @@ export class PuterAI {
   constructor(client) {
     this.client = client;
   }
+  
   /**
    * Get chat completion from AI
-   * @param {Array<object>} messages - Array of chat messages
-   * @param {string} messages[].role - Role of the message sender (e.g., 'user', 'assistant', 'system')
-   * @param {string} messages[].content - Content of the message
+   * @param {Array<object>|string} messages - Array of chat messages or a string prompt
+   * @param {boolean|object} [testMode=false] - Test mode flag or options object
    * @param {object} [options] - Additional options for the chat completion
    * @param {string} [options.model] - The model to use for completion
    * @param {number} [options.temperature] - Controls randomness (0-1, lower is more deterministic)
@@ -32,6 +32,12 @@ export class PuterAI {
    *   { role: 'user', content: 'Hello, how are you?' }
    * ]);
    * 
+   * // Get a chat completion with a simple prompt
+   * const result = await client.ai.chat('Hello, how are you?');
+   * 
+   * // Get a chat completion with test mode enabled
+   * const result = await client.ai.chat('Write a short poem', true);
+   * 
    * // Get a chat completion with custom temperature and max_tokens
    * const result = await client.ai.chat(
    *   [
@@ -40,28 +46,44 @@ export class PuterAI {
    *   { temperature: 0.7, max_tokens: 100 }
    * );
    */
-  async chat(messages, options = {}) {
-    if (!Array.isArray(messages) || messages.length === 0) {
+  async chat(messages, testMode = false, options = {}) {
+    let actualMessages = messages;
+    let actualOptions = options;
+    let isTestMode = testMode;
+
+    // Handle different argument patterns
+    if (typeof messages === 'string') {
+      // Convert string prompt to messages array
+      actualMessages = [{ role: 'user', content: messages }];
+    }
+
+    // If second argument is an object, it's options not testMode
+    if (typeof testMode === 'object' && testMode !== null) {
+      actualOptions = testMode;
+      isTestMode = false;
+    }
+
+    if (!Array.isArray(actualMessages) || actualMessages.length === 0) {
       throw new Error('At least one message is required');
     }
 
     // Validate message format
-    messages.forEach(msg => {
+    actualMessages.forEach(msg => {
       if (!msg.role || !msg.content) {
         throw new Error('Invalid message format');
       }
     });
 
-    const { model, temperature, max_tokens } = options;
+    const { model, temperature, max_tokens } = actualOptions;
 
     try {
       const response = await this.client.http.post('/drivers/call', {
         interface: INTERFACE_CHAT_COMPLETION,
         driver: 'openai-completion',
-        test_mode: false,
+        test_mode: isTestMode,
         method: 'complete',
         args: { 
-          messages,
+          messages: actualMessages,
           ...(model && { model }),
           ...(temperature !== undefined && { temperature }),
           ...(max_tokens !== undefined && { max_tokens })
