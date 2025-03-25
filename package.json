@@ -1,6 +1,6 @@
 {
   "name": "puter-sdk",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "type": "module",
   "description": "The Unofficial Puter SDK library for Puter cloud platform",
   "main": "src/index.js",
