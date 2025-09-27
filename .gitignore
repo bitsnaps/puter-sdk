@@ -38,3 +38,8 @@ examples/
 
 # jsdocs
 /docs
+
+# AI & editor
+AGENTS.md
+.trae
+.kilocode
