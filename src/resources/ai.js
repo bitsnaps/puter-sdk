@@ -46,58 +46,106 @@ export class PuterAI {
    *   { temperature: 0.7, max_tokens: 100 }
    * );
    */
-  async chat(messages, testMode = false, options = {}) {
-    let actualMessages = messages;
-    let actualOptions = options;
-    let isTestMode = testMode;
+  async chat(prompt, arg2, arg3, arg4) {
+    let messages;
+    let options = {};
+    let testMode = false;
+    let imageUrls = [];
 
-    // Handle different argument patterns
-    if (typeof messages === 'string') {
-      // Convert string prompt to messages array
-      actualMessages = [{ role: 'user', content: messages }];
+    // Signature: chat(prompt)
+    // Signature: chat(messages)
+    if (typeof prompt === 'string') {
+      messages = [{ role: 'user', content: prompt }];
+    } else if (Array.isArray(prompt)) {
+      messages = prompt;
+    } else {
+      throw new Error('The first argument must be a string or an array of messages.');
     }
 
-    // If second argument is an object, it's options not testMode
-    if (typeof testMode === 'object' && testMode !== null) {
-      actualOptions = testMode;
-      isTestMode = false;
+    const args = [arg2, arg3, arg4].filter(arg => arg !== undefined);
+
+    for (const arg of args) {
+      if (typeof arg === 'boolean') {
+        testMode = arg;
+      } else if (typeof arg === 'string') {
+        imageUrls.push(arg);
+      } else if (Array.isArray(arg) && arg.every(item => typeof item === 'string')) {
+        imageUrls.push(...arg);
+      } else if (typeof arg === 'object' && !Array.isArray(arg)) {
+        options = { ...options, ...arg };
+      }
     }
 
-    if (!Array.isArray(actualMessages) || actualMessages.length === 0) {
-      throw new Error('At least one message is required');
+    // Prevent misuse: streaming must use chatCompleteStream()
+    if (options && options.stream === true) {
+      throw new Error('Streaming is only supported via chatCompleteStream().');
+    }
+
+    // Since this is a Node.js environment, we assume image URLs are local file paths
+    // and we need to upload them to get a file ID that the backend can use.
+    if (imageUrls.length > 0) {
+      const uploadPromises = imageUrls.map(url => this.client.fs.upload(url, '/'));
+      const uploadResults = await Promise.all(uploadPromises);
+
+      const visionContent = uploadResults.map(result => ({
+        type: 'image_url',
+        image_url: {
+          // The backend expects a file UID
+          url: `file://${result.uid}`,
+        },
+      }));
+      
+      // Add image content to the last user message
+      const lastUserMessage = messages.slice().reverse().find(m => m.role === 'user');
+      if (lastUserMessage) {
+        if (typeof lastUserMessage.content === 'string') {
+          lastUserMessage.content = [
+            { type: 'text', text: lastUserMessage.content },
+            ...visionContent,
+          ];
+        } else if (Array.isArray(lastUserMessage.content)) {
+          lastUserMessage.content.push(...visionContent);
+        }
+      } else {
+        // If no user message, create one
+        messages.push({ role: 'user', content: visionContent });
+      }
+    }
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      throw new Error('At least one message is required.');
     }
 
     // Validate message format
-    actualMessages.forEach(msg => {
-      if (!msg.role || !msg.content) {
+    for (const m of messages) {
+      const hasValidRole = typeof m === 'object' && typeof m.role === 'string';
+      const hasValidContent = typeof m.content === 'string' || Array.isArray(m.content);
+      if (!hasValidRole || !hasValidContent) {
         throw new Error('Invalid message format');
       }
-    });
+    }
 
-    const { model, temperature, max_tokens } = actualOptions;
 
     try {
       const response = await this.client.http.post('/drivers/call', {
         interface: INTERFACE_CHAT_COMPLETION,
         driver: 'openai-completion',
-        test_mode: isTestMode,
+        test_mode: testMode,
         method: 'complete',
-        args: { 
-          messages: actualMessages,
-          ...(model && { model }),
-          ...(temperature !== undefined && { temperature }),
-          ...(max_tokens !== undefined && { max_tokens })
-        }
+        args: {
+          messages,
+          ...options,
+        },
       });
 
       if (!response.success) {
-        throw new Error(response.error?.message || 'Failed to get chat completion');
+        throw new PuterError(response.error?.message || 'Failed to get chat completion');
       }
 
       return response.result;
     } catch (error) {
       if (error.response?.data?.error) {
-        throw new PuterError(error.response.data.error);
+        throw new PuterError(error.response.data.error.message || error.response.data.error, error.response.data.error.code);
       }
       throw new Error(error.message || 'Failed to get chat completion');
     }
@@ -128,30 +176,42 @@ export class PuterAI {
    * // Process the stream...
    */
   async chatCompleteStream(messages, options = {}) {
-    if (!Array.isArray(messages) || messages.length === 0) {
-      throw new Error('At least one message is required');
-    }
-
     const { model, temperature, max_tokens } = options;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      throw new Error('At least one message is required.');
+    }
+    for (const m of messages) {
+      const hasValidRole = typeof m === 'object' && typeof m.role === 'string';
+      const hasValidContent = typeof m.content === 'string' || Array.isArray(m.content);
+      if (!hasValidRole || !hasValidContent) {
+        throw new Error('Invalid message format');
+      }
+    }
 
     try {
       const response = await this.client.http.post('/drivers/call', {
         interface: INTERFACE_CHAT_COMPLETION,
         driver: 'openai-completion',
-        test_mode: false,
-        method: 'complete_stream',
-        args: { 
+        test_mode: false, // Test mode is not supported for streaming
+        method: 'complete',
+        args: {
           messages,
           stream: true,
           ...(model && { model }),
           ...(temperature !== undefined && { temperature }),
           ...(max_tokens !== undefined && { max_tokens })
         }
-      }, {
-        responseType: 'stream'
-      });
+      }, { responseType: 'stream' });
 
-      return response.data;
+      // Normalize to return the actual stream across environments
+      if (response && response.data && typeof response.data.on === 'function' && typeof response.data.pipe === 'function') {
+        return response.data;
+      }
+      if (response && typeof response.on === 'function' && typeof response.pipe === 'function') {
+        return response;
+      }
+      return response;
     } catch (error) {
       if (error.response?.data?.error) {
         throw new PuterError(error.response.data.error);

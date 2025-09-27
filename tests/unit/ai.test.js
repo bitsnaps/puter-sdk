@@ -274,7 +274,7 @@ describe('AI Operations', () => {
         interface: 'puter-chat-completion',
         driver: 'openai-completion',
         test_mode: false,
-        method: 'complete_stream',
+        method: 'complete',
         args: {
           messages: [{
             role: 'user',
