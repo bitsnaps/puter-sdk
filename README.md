@@ -11,11 +11,6 @@
 
 ---
 
-> 🚧 **Work in Progress**
->
-> This project is currently in active development and not usable for production yet.
-> This project includes certain functionalities that are inherently dangerous and not fully tested in production environments. Operations such as creating apps, creating sites, or deleting files are experimental and may cause instability, data loss, or even crash instances if misused or if unforeseen edge cases occur. While we strive to provide reliable package, these specific features are provided "as-is" and may not have undergone rigorous testing across all possible scenarios. Developers using these functionalities must exercise extreme caution and thoroughly test them in controlled environments before deploying them to production. By using this SDK, you acknowledge that you are doing so at your own risk, and the maintainers are not responsible for any damage, loss, or instability caused by its use. Proceed with caution and ensure you have proper safeguards in place.
-
 The Unofficial JavaScript SDK for interacting with the **Puter Cloud Platform**. If you don't have an account you can [Signup](https://puter.com/?r=N5Y0ZYTF) from here for free (You'll get a free 1Gb from this link). This SDK provides a simple and consistent interface for working with Puter's APIs, including file management, app deployment, AI services, and more.
 
 ## Features
@@ -211,11 +206,33 @@ const stream = await puter.ai.chatCompleteStream(
 );
 
 // Process the stream
-stream.on('data', (chunk) => {
-  const data = JSON.parse(chunk.toString());
-  if (data.success && data.result.message) {
-    process.stdout.write(data.result.message.content);
+let buffer = '';
+const processLine = (line) => {
+  const trimmed = line.trim();
+  if (!trimmed) return;
+  const payload = trimmed.startsWith('data:') ? trimmed.slice(5).trim() : trimmed;
+  try {
+    const data = JSON.parse(payload);
+    if (data.success && data.result?.message?.content) {
+      process.stdout.write(data.result.message.content);
+      return;
+    }
+    if (data.type === 'text' && data.text) {
+      process.stdout.write(data.text);
+    }
+  } catch (_) {
+    // Ignore parse errors for partial chunks
   }
+};
+stream.on('data', (chunk) => {
+  buffer += chunk.toString();
+  const lines = buffer.split(/\r?\n/);
+  buffer = lines.pop();
+  for (const line of lines) processLine(line);
+});
+stream.on('end', () => {
+  if (buffer) processLine(buffer);
+  process.stdout.write('\n');
 });
 
 // Image generation
