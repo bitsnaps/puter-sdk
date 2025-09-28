@@ -45,6 +45,12 @@ export class PuterAI {
    *   ],
    *   { temperature: 0.7, max_tokens: 100 }
    * );
+   * // Get a streaming chat completion with custom settings
+   * const stream = await client.ai.chat(
+   *   [{ role: 'user', content: 'Explain quantum physics' }],
+   *   { stream: true, temperature: 0.5, max_tokens: 500 }
+   * );
+   * // Process the stream...
    */
   async chat(prompt, arg2, arg3, arg4) {
     let messages;
@@ -76,10 +82,8 @@ export class PuterAI {
       }
     }
 
-    // Prevent misuse: streaming must use chatCompleteStream()
-    if (options && options.stream === true) {
-      throw new Error('Streaming is only supported via chatCompleteStream().');
-    }
+    // Determine streaming mode from options
+    const isStream = !!(options && options.stream === true);
 
     // Since this is a Node.js environment, we assume image URLs are local file paths
     // and we need to upload them to get a file ID that the backend can use.
@@ -127,96 +131,43 @@ export class PuterAI {
 
 
     try {
-      const response = await this.client.http.post('/drivers/call', {
+      const payload = {
         interface: INTERFACE_CHAT_COMPLETION,
         driver: 'openai-completion',
-        test_mode: testMode,
+        test_mode: isStream ? false : testMode,
         method: 'complete',
-        args: {
-          messages,
-          ...options,
-        },
-      });
+        // Ensure args key ordering: messages -> stream -> other options (excluding stream)
+        args: (() => {
+          const { stream: _streamFlag, ...restOptions } = options || {};
+          return {
+            messages,
+            ...(isStream ? { stream: true } : {}),
+            ...restOptions,
+          };
+        })(),
+      };
 
-      if (!response.success) {
-        throw new PuterError(response.error?.message || 'Failed to get chat completion');
+      if (isStream) {
+        const response = await this.client.http.post('/drivers/call', payload, { responseType: 'stream' });
+        if (response && response.data && typeof response.data.on === 'function' && typeof response.data.pipe === 'function') {
+          return response.data;
+        }
+        if (response && typeof response.on === 'function' && typeof response.pipe === 'function') {
+          return response;
+        }
+        return response;
+      } else {
+        const response = await this.client.http.post('/drivers/call', payload);
+        if (!response.success) {
+          throw new PuterError(response.error?.message || 'Failed to get chat completion');
+        }
+        return response.result;
       }
-
-      return response.result;
     } catch (error) {
       if (error.response?.data?.error) {
         throw new PuterError(error.response.data.error.message || error.response.data.error, error.response.data.error.code);
       }
       throw new Error(error.message || 'Failed to get chat completion');
-    }
-  }
-
-  /**
-   * Get streaming chat completion from AI
-   * @param {Array<object>} messages - Array of chat messages
-   * @param {string} messages[].role - Role of the message sender (e.g., 'user', 'assistant', 'system')
-   * @param {string} messages[].content - Content of the message
-   * @param {object} [options] - Additional options for the chat completion
-   * @param {string} [options.model] - The model to use for completion
-   * @param {number} [options.temperature] - Controls randomness (0-1, lower is more deterministic)
-   * @param {number} [options.max_tokens] - Maximum number of tokens to generate
-   * @returns {Promise<ReadableStream>} Stream of chat completion chunks
-   * @throws {Error} If messages are invalid or API request fails
-   * @example
-   * // Get a streaming chat completion with default settings
-   * const stream = await client.ai.chatCompleteStream([
-   *   { role: 'user', content: 'Write a poem about clouds' }
-   * ]);
-   * 
-   * // Get a streaming chat completion with custom settings
-   * const stream = await client.ai.chatCompleteStream(
-   *   [{ role: 'user', content: 'Explain quantum physics' }],
-   *   { temperature: 0.5, max_tokens: 500 }
-   * );
-   * // Process the stream...
-   */
-  async chatCompleteStream(messages, options = {}) {
-    const { model, temperature, max_tokens } = options;
-
-    if (!Array.isArray(messages) || messages.length === 0) {
-      throw new Error('At least one message is required.');
-    }
-    for (const m of messages) {
-      const hasValidRole = typeof m === 'object' && typeof m.role === 'string';
-      const hasValidContent = typeof m.content === 'string' || Array.isArray(m.content);
-      if (!hasValidRole || !hasValidContent) {
-        throw new Error('Invalid message format');
-      }
-    }
-
-    try {
-      const response = await this.client.http.post('/drivers/call', {
-        interface: INTERFACE_CHAT_COMPLETION,
-        driver: 'openai-completion',
-        test_mode: false, // Test mode is not supported for streaming
-        method: 'complete',
-        args: {
-          messages,
-          stream: true,
-          ...(model && { model }),
-          ...(temperature !== undefined && { temperature }),
-          ...(max_tokens !== undefined && { max_tokens })
-        }
-      }, { responseType: 'stream' });
-
-      // Normalize to return the actual stream across environments
-      if (response && response.data && typeof response.data.on === 'function' && typeof response.data.pipe === 'function') {
-        return response.data;
-      }
-      if (response && typeof response.on === 'function' && typeof response.pipe === 'function') {
-        return response;
-      }
-      return response;
-    } catch (error) {
-      if (error.response?.data?.error) {
-        throw new PuterError(error.response.data.error);
-      }
-      throw new Error(error.message || 'Failed to get streaming chat completion');
     }
   }
 

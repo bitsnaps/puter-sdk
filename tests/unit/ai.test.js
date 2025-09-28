@@ -219,10 +219,12 @@ describe('AI Operations', () => {
         // Configure mock adapter to return a stream
         mockAxios.onPost('/drivers/call').reply(200, createMockStream(mockResponse));
 
-        const stream = await client.ai.chatCompleteStream([{
+        const stream = await client.ai.chat([{
             role: 'user',
             content: 'What is Puter?'
-          }]);
+          }], {
+            stream: true
+          });
         
         expect(stream).toBeDefined();
 
@@ -261,10 +263,11 @@ describe('AI Operations', () => {
 
       mockAxios.onPost('/drivers/call').reply(200, createMockStream(mockResponse));
 
-      const stream = await client.ai.chatCompleteStream([{
+      const stream = await client.ai.chat([{
         role: 'user',
         content: 'Write a short story'
       }], {
+        stream: true,
         temperature: 0.8,
         max_tokens: 200
       });

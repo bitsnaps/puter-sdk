@@ -194,12 +194,13 @@ console.log('Available providers:', providers);
 // Example output: ['openai-completion', 'anthropic', 'openrouter', ...]
 
 // Streaming chat completion
-const stream = await puter.ai.chatCompleteStream(
+const stream = await puter.ai.chat(
   [{
     role: 'user',
     content: 'Explain quantum computing'
   }],
   {
+    stream: true,
     temperature: 0.5,
     max_tokens: 500
   }
