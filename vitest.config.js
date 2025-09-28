@@ -24,6 +24,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['html','text'],
+      exclude: [
+          ...configDefaults.exclude,
+          '**/vitest**',
+          '**/docs/**',
+          '**/examples/*.js',
+        ],
       threshold: {
         statements: 100,
         branches: 100,
